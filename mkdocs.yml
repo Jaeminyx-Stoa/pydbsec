@@ -1,6 +1,6 @@
 site_name: pydbsec
 site_url: https://stoa-company.github.io/pydbsec
-site_description: Python wrapper for DB Securities (DB증권) OpenAPI
+site_description: DB증권 OpenAPI Python 래퍼 — 3줄이면 잔고 조회, 5줄이면 자동매매
 repo_url: https://github.com/STOA-company/pydbsec
 repo_name: STOA-company/pydbsec
 
@@ -10,22 +10,38 @@ theme:
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: indigo
+      primary: deep purple
+      accent: amber
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
+      primary: deep purple
+      accent: amber
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
   features:
     - content.code.copy
     - content.code.annotate
+    - content.tabs.link
     - navigation.instant
+    - navigation.tabs
     - navigation.sections
+    - navigation.top
     - search.highlight
+    - search.suggest
+    - toc.follow
+  icon:
+    repo: fontawesome/brands/github
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/STOA-company/pydbsec
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/pydbsec/
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -33,16 +49,27 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - admonition
   - pymdownx.details
   - attr_list
+  - md_in_html
+  - def_list
   - toc:
       permalink: true
 
 nav:
   - Home: index.md
-  - Quick Start: quickstart.md
-  - MCP Server: mcp.md
+  - Getting Started:
+      - Installation: installation.md
+      - Quick Start: quickstart.md
+      - CLI: cli.md
+  - Features:
+      - MCP Server: mcp.md
+      - WebSocket: websocket.md
+      - Rate Limiting: ratelimit.md
   - API Reference:
       - Client: api/client.md
       - Domestic: api/domestic.md
