@@ -1,0 +1,32 @@
+{
+  "name": "pydbsec-mcp",
+  "version": "0.4.0",
+  "description": "MCP server for DB Securities (DB증권) OpenAPI — stock trading, balance, quotes for Korean & US markets",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "db-securities",
+    "trading",
+    "stock",
+    "korea",
+    "claude",
+    "ai",
+    "llm"
+  ],
+  "author": "STOA Company",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/STOA-company/pydbsec"
+  },
+  "homepage": "https://github.com/STOA-company/pydbsec",
+  "bin": {
+    "pydbsec-mcp": "bin/cli.js"
+  },
+  "files": [
+    "bin/"
+  ],
+  "engines": {
+    "node": ">=16"
+  }
+}
