@@ -126,7 +126,7 @@ class DomesticAPI:
         order_type: str = "0",
         stock_type: str = "0",
         query_type: str = "0",
-    ) -> dict[str, Any] | list[dict[str, Any]]:
+    ) -> dict[str, Any]:
         """Get today's transaction history (체결/미체결 내역).
 
         Args:
@@ -145,9 +145,7 @@ class DomesticAPI:
         }
         return self._http.request(DOMESTIC_TRANSACTION_HISTORY, data)
 
-    def trading_history(
-        self, start_date: str, end_date: str, *, query_type: str = "0"
-    ) -> dict[str, Any] | list[dict[str, Any]]:
+    def trading_history(self, start_date: str, end_date: str, *, query_type: str = "0") -> dict[str, Any]:
         """Get trading history for a date range.
 
         Args:
@@ -158,7 +156,7 @@ class DomesticAPI:
         data = {"In": {"QryTp": query_type, "QrySrtDt": start_date, "QryEndDt": end_date, "SrtNo": 0, "IsuNo": ""}}
         return self._http.request(DOMESTIC_TRADING_HISTORY, data)
 
-    def daily_trade_report(self, date: str, *, stock_code: str = "") -> dict[str, Any] | list[dict[str, Any]]:
+    def daily_trade_report(self, date: str, *, stock_code: str = "") -> dict[str, Any]:
         """Get daily trade report.
 
         Args:
@@ -187,7 +185,7 @@ class DomesticAPI:
         result = self._http.request(DOMESTIC_ORDER_BOOK, data, paginate=False)
         return OrderBook.from_api(result)  # type: ignore[arg-type]
 
-    def tickers(self, *, market: str = "UJ") -> dict[str, Any] | list[dict[str, Any]]:
+    def tickers(self, *, market: str = "UJ") -> dict[str, Any]:
         """Get stock tickers list."""
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": None}}
         return self._http.request(DOMESTIC_STOCK_TICKER, data)
@@ -204,7 +202,7 @@ class DomesticAPI:
         time_interval: str = "60",
         market: str = "UJ",
         adjust_price: str = "0",
-    ) -> dict[str, Any] | list[dict[str, Any]]:
+    ) -> dict[str, Any]:
         """Get chart data.
 
         Args:
@@ -284,7 +282,7 @@ class AsyncDomesticAPI:
 
     async def transaction_history(
         self, *, execution_status: str = "0", order_type: str = "0", stock_type: str = "0", query_type: str = "0"
-    ) -> dict[str, Any] | list[dict[str, Any]]:
+    ) -> dict[str, Any]:
         data = {
             "In": {
                 "ExecYn": execution_status,
@@ -297,13 +295,11 @@ class AsyncDomesticAPI:
         }
         return await self._http.request(DOMESTIC_TRANSACTION_HISTORY, data)
 
-    async def trading_history(
-        self, start_date: str, end_date: str, *, query_type: str = "0"
-    ) -> dict[str, Any] | list[dict[str, Any]]:
+    async def trading_history(self, start_date: str, end_date: str, *, query_type: str = "0") -> dict[str, Any]:
         data = {"In": {"QryTp": query_type, "QrySrtDt": start_date, "QryEndDt": end_date, "SrtNo": 0, "IsuNo": ""}}
         return await self._http.request(DOMESTIC_TRADING_HISTORY, data)
 
-    async def daily_trade_report(self, date: str, *, stock_code: str = "") -> dict[str, Any] | list[dict[str, Any]]:
+    async def daily_trade_report(self, date: str, *, stock_code: str = "") -> dict[str, Any]:
         data = {"In": {"IsuNo": stock_code, "BnsDt": date}}
         return await self._http.request(DOMESTIC_DAILY_TRADE_REPORT, data)
 
@@ -317,7 +313,7 @@ class AsyncDomesticAPI:
         result = await self._http.request(DOMESTIC_ORDER_BOOK, data, paginate=False)
         return OrderBook.from_api(result)  # type: ignore[arg-type]
 
-    async def tickers(self, *, market: str = "UJ") -> dict[str, Any] | list[dict[str, Any]]:
+    async def tickers(self, *, market: str = "UJ") -> dict[str, Any]:
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": None}}
         return await self._http.request(DOMESTIC_STOCK_TICKER, data)
 
@@ -331,7 +327,7 @@ class AsyncDomesticAPI:
         time_interval: str = "60",
         market: str = "UJ",
         adjust_price: str = "0",
-    ) -> dict[str, Any] | list[dict[str, Any]]:
+    ) -> dict[str, Any]:
         endpoint, data = _build_domestic_chart(
             stock_code, period, start_date, end_date, time_interval, market, adjust_price
         )

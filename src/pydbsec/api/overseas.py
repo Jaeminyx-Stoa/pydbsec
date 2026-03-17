@@ -144,7 +144,7 @@ class OverseasAPI:
         sort_type: str = "0",
         query_type: str = "0",
         currency_type: str = "2",
-    ) -> dict[str, Any] | list[dict[str, Any]]:
+    ) -> dict[str, Any]:
         """Get overseas transaction history.
 
         Args:
@@ -189,7 +189,7 @@ class OverseasAPI:
         result = self._http.request(OVERSEAS_ORDER_BOOK, data, paginate=False)
         return OrderBook.from_api(result)  # type: ignore[arg-type]
 
-    def tickers(self, *, market: str = "NY") -> dict[str, Any] | list[dict[str, Any]]:
+    def tickers(self, *, market: str = "NY") -> dict[str, Any]:
         """Get overseas stock tickers.
 
         Args:
@@ -210,7 +210,7 @@ class OverseasAPI:
         time_interval: str = "60",
         market: str = MARKET_NYSE,
         adjust_price: str = "1",
-    ) -> dict[str, Any] | list[dict[str, Any]]:
+    ) -> dict[str, Any]:
         """Get overseas chart data.
 
         Args:
@@ -291,7 +291,7 @@ class AsyncOverseasAPI:
         sort_type: str = "0",
         query_type: str = "0",
         currency_type: str = "2",
-    ) -> dict[str, Any] | list[dict[str, Any]]:
+    ) -> dict[str, Any]:
         data = {
             "In": {
                 "QrySrtDt": start_date,
@@ -318,7 +318,7 @@ class AsyncOverseasAPI:
         result = await self._http.request(OVERSEAS_ORDER_BOOK, data, paginate=False)
         return OrderBook.from_api(result)  # type: ignore[arg-type]
 
-    async def tickers(self, *, market: str = "NY") -> dict[str, Any] | list[dict[str, Any]]:
+    async def tickers(self, *, market: str = "NY") -> dict[str, Any]:
         data = {"In": {"InputDataCode": market}}
         return await self._http.request(OVERSEAS_STOCK_TICKER, data)
 
@@ -332,7 +332,7 @@ class AsyncOverseasAPI:
         time_interval: str = "60",
         market: str = MARKET_NYSE,
         adjust_price: str = "1",
-    ) -> dict[str, Any] | list[dict[str, Any]]:
+    ) -> dict[str, Any]:
         endpoint, data = _build_overseas_chart(
             stock_code, period, start_date, end_date, time_interval, market, adjust_price
         )

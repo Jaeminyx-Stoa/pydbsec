@@ -8,6 +8,7 @@ from .api.domestic import AsyncDomesticAPI, DomesticAPI
 from .api.futures import AsyncFuturesAPI, FuturesAPI
 from .api.overseas import AsyncOverseasAPI, OverseasAPI
 from .auth import TokenManager
+from .constants import BASE_URL
 from .http import AsyncHTTPClient, HTTPClient
 
 
@@ -34,7 +35,7 @@ class PyDBSec:
         # Overseas
         us_balance = client.overseas.balance()
 
-        # Close session (revokes token)
+        # Close session (revokes token, closes connection pool)
         client.close()
     """
 
@@ -46,6 +47,7 @@ class PyDBSec:
         token: str | None = None,
         token_type: str | None = None,
         expires_at: datetime | None = None,
+        base_url: str = BASE_URL,
         timeout: float = 30,
     ):
         """Initialize PyDBSec client.
@@ -56,6 +58,7 @@ class PyDBSec:
             token: Existing access token (optional, for reuse)
             token_type: Token type (e.g., "Bearer")
             expires_at: Token expiration datetime
+            base_url: API base URL (override for sandbox/testing)
             timeout: HTTP request timeout in seconds
         """
         self._token_manager = TokenManager(
@@ -65,7 +68,7 @@ class PyDBSec:
             token_type=token_type,
             expires_at=expires_at,
         )
-        self._http = HTTPClient(self._token_manager, timeout=timeout)
+        self._http = HTTPClient(self._token_manager, base_url=base_url, timeout=timeout)
 
         self.domestic = DomesticAPI(self._http)
         self.overseas = OverseasAPI(self._http)
@@ -87,7 +90,8 @@ class PyDBSec:
         return self._token_manager.expires_at
 
     def close(self) -> None:
-        """Revoke the access token and close the session."""
+        """Revoke the access token and close the connection pool."""
+        self._http.close()
         self._token_manager.revoke()
 
     def __enter__(self) -> PyDBSec:
@@ -105,12 +109,9 @@ class AsyncPyDBSec:
         from pydbsec import AsyncPyDBSec
 
         async def main():
-            client = AsyncPyDBSec(app_key="YOUR_KEY", app_secret="YOUR_SECRET")
-
-            balance = await client.domestic.balance()
-            price = await client.domestic.price("005930")
-
-            client.close()
+            async with AsyncPyDBSec(app_key="YOUR_KEY", app_secret="YOUR_SECRET") as client:
+                balance = await client.domestic.balance()
+                price = await client.domestic.price("005930")
     """
 
     def __init__(
@@ -121,6 +122,7 @@ class AsyncPyDBSec:
         token: str | None = None,
         token_type: str | None = None,
         expires_at: datetime | None = None,
+        base_url: str = BASE_URL,
         timeout: float = 30,
     ):
         self._token_manager = TokenManager(
@@ -130,7 +132,7 @@ class AsyncPyDBSec:
             token_type=token_type,
             expires_at=expires_at,
         )
-        self._http = AsyncHTTPClient(self._token_manager, timeout=timeout)
+        self._http = AsyncHTTPClient(self._token_manager, base_url=base_url, timeout=timeout)
 
         self.domestic = AsyncDomesticAPI(self._http)
         self.overseas = AsyncOverseasAPI(self._http)
@@ -148,11 +150,17 @@ class AsyncPyDBSec:
     def expires_at(self) -> datetime | None:
         return self._token_manager.expires_at
 
+    async def aclose(self) -> None:
+        """Close the async connection pool and revoke token."""
+        await self._http.aclose()
+        self._token_manager.revoke()
+
     def close(self) -> None:
+        """Revoke token (sync). For full cleanup use aclose()."""
         self._token_manager.revoke()
 
     async def __aenter__(self) -> AsyncPyDBSec:
         return self
 
     async def __aexit__(self, *args: object) -> None:
-        self.close()
+        await self.aclose()
