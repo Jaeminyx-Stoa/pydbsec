@@ -17,11 +17,14 @@ hide:
 .feature { padding: 1.5rem; border-radius: 12px; border: 1px solid var(--md-default-fg-color--lightest); }
 .feature h3 { margin-top: 0; }
 .badges { display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.by-stoa { font-size: 0.9rem; opacity: 0.6; margin-top: 0.5rem; }
+.by-stoa a { color: inherit; text-decoration: underline; }
 </style>
 
 <div class="hero" markdown>
 
 ## pydbsec
+<p class="by-stoa">by <a href="https://github.com/STOA-company">STOA Company</a> — Makers of <a href="https://quantus.kr">Quantus</a></p>
 
 <p class="subtitle">DB증권 OpenAPI Python 래퍼<br>3줄이면 잔고 조회, 5줄이면 자동매매</p>
 
