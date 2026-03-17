@@ -100,3 +100,34 @@ class TestTokenManager:
         tm = TokenManager("key", "secret")
         result = tm.revoke()
         assert result["code"] == 400
+
+    def test_custom_base_url(self, httpx_mock):
+        """Token requests should use the custom base_url."""
+        custom_url = "https://sandbox.dbsec.co.kr:8443"
+        httpx_mock.add_response(
+            url=f"{custom_url}/oauth2/token",
+            method="POST",
+            json={"access_token": "sandbox_token", "expires_in": 86400, "token_type": "Bearer"},
+        )
+        tm = TokenManager("key", "secret", base_url=custom_url)
+        token = tm.token
+        assert token == "sandbox_token"
+
+    def test_revoke_uses_custom_base_url(self, httpx_mock):
+        """Revoke should also use the custom base_url."""
+        custom_url = "https://sandbox.dbsec.co.kr:8443"
+        httpx_mock.add_response(
+            url=f"{custom_url}/oauth2/revoke",
+            method="POST",
+            json={"code": 200, "message": "success"},
+        )
+        tm = TokenManager(
+            "key",
+            "secret",
+            base_url=custom_url,
+            token="tok",
+            token_type="Bearer",
+            expires_at=datetime.now() + timedelta(hours=1),
+        )
+        result = tm.revoke()
+        assert result["code"] == 200

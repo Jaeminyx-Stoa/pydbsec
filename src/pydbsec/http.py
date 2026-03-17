@@ -170,7 +170,7 @@ class AsyncHTTPClient:
             body = _safe_json(response)
             if isinstance(body, dict) and body.get("rsp_cd") == ERROR_TOKEN_EXPIRED:
                 logger.info("Token expired (IGW00121), refreshing...")
-                self._token_manager.refresh()
+                await asyncio.to_thread(self._token_manager.refresh)
                 headers["Authorization"] = self._token_manager.authorization
                 await asyncio.sleep(1.5)
                 response = await self._client.post(endpoint, json=data, headers=headers)

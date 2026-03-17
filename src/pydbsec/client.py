@@ -64,6 +64,7 @@ class PyDBSec:
         self._token_manager = TokenManager(
             app_key,
             app_secret,
+            base_url=base_url,
             token=token,
             token_type=token_type,
             expires_at=expires_at,
@@ -128,6 +129,7 @@ class AsyncPyDBSec:
         self._token_manager = TokenManager(
             app_key,
             app_secret,
+            base_url=base_url,
             token=token,
             token_type=token_type,
             expires_at=expires_at,
