@@ -3,6 +3,10 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .ws import DBSecWebSocket
 
 from .api.domestic import AsyncDomesticAPI, DomesticAPI
 from .api.futures import AsyncFuturesAPI, FuturesAPI
@@ -74,6 +78,7 @@ class PyDBSec:
         self.domestic = DomesticAPI(self._http)
         self.overseas = OverseasAPI(self._http)
         self.futures = FuturesAPI(self._http)
+        self._ws: DBSecWebSocket | None = None
 
     @property
     def token(self) -> str:
@@ -89,6 +94,26 @@ class PyDBSec:
     def expires_at(self) -> datetime | None:
         """Token expiration datetime."""
         return self._token_manager.expires_at
+
+    @property
+    def ws(self) -> DBSecWebSocket:
+        """WebSocket client for real-time data.
+
+        Requires: ``pip install pydbsec[ws]``
+
+        Usage::
+
+            async with client.ws as ws:
+                await ws.subscribe("005930", tr_code="S00")
+                async for msg in ws:
+                    print(msg.data)
+        """
+        if self._ws is None:
+            from .ws import DBSecWebSocket
+            from .ws.constants import WS_URL
+
+            self._ws = DBSecWebSocket(self._token_manager, ws_url=WS_URL)
+        return self._ws
 
     def close(self) -> None:
         """Revoke the access token and close the connection pool."""
@@ -139,6 +164,7 @@ class AsyncPyDBSec:
         self.domestic = AsyncDomesticAPI(self._http)
         self.overseas = AsyncOverseasAPI(self._http)
         self.futures = AsyncFuturesAPI(self._http)
+        self._ws: DBSecWebSocket | None = None
 
     @property
     def token(self) -> str:
@@ -151,6 +177,16 @@ class AsyncPyDBSec:
     @property
     def expires_at(self) -> datetime | None:
         return self._token_manager.expires_at
+
+    @property
+    def ws(self) -> DBSecWebSocket:
+        """WebSocket client for real-time data."""
+        if self._ws is None:
+            from .ws import DBSecWebSocket
+            from .ws.constants import WS_URL
+
+            self._ws = DBSecWebSocket(self._token_manager, ws_url=WS_URL)
+        return self._ws
 
     async def aclose(self) -> None:
         """Close the async connection pool and revoke token."""
