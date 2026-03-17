@@ -46,9 +46,13 @@ dev = [
     "ruff>=0.4",
     "mypy>=1.10",
 ]
+docs = [
+    "mkdocs-material>=9.5",
+]
 
 [project.urls]
 Homepage = "https://github.com/STOA-company/pydbsec"
+Documentation = "https://stoa-company.github.io/pydbsec"
 Repository = "https://github.com/STOA-company/pydbsec"
 Issues = "https://github.com/STOA-company/pydbsec/issues"
 
