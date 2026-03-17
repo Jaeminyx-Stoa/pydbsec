@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import logging
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from .ws import DBSecWebSocket
@@ -14,6 +15,7 @@ from .api.overseas import AsyncOverseasAPI, OverseasAPI
 from .auth import TokenManager
 from .constants import BASE_URL
 from .http import AsyncHTTPClient, HTTPClient
+from .ratelimit import RateLimiter
 
 
 class PyDBSec:
@@ -27,19 +29,17 @@ class PyDBSec:
 
         # Domestic balance
         balance = client.domestic.balance()
-        print(balance.deposit_total, balance.positions)
 
         # Stock price
         price = client.domestic.price("005930")
-        print(price.current_price)
 
         # Buy order
         result = client.domestic.buy("005930", quantity=10, price=70000)
 
-        # Overseas
-        us_balance = client.overseas.balance()
+        # Portfolio summary (국내+해외 통합)
+        summary = client.portfolio_summary()
 
-        # Close session (revokes token, closes connection pool)
+        # Close session
         client.close()
     """
 
@@ -53,6 +53,8 @@ class PyDBSec:
         expires_at: datetime | None = None,
         base_url: str = BASE_URL,
         timeout: float = 30,
+        rate_limit: bool = True,
+        log_level: int | None = None,
     ):
         """Initialize PyDBSec client.
 
@@ -64,7 +66,12 @@ class PyDBSec:
             expires_at: Token expiration datetime
             base_url: API base URL (override for sandbox/testing)
             timeout: HTTP request timeout in seconds
+            rate_limit: Enable API rate limiting (default: True)
+            log_level: Set pydbsec logger level (e.g., logging.DEBUG)
         """
+        if log_level is not None:
+            _configure_logging(log_level)
+
         self._token_manager = TokenManager(
             app_key,
             app_secret,
@@ -73,7 +80,8 @@ class PyDBSec:
             token_type=token_type,
             expires_at=expires_at,
         )
-        self._http = HTTPClient(self._token_manager, base_url=base_url, timeout=timeout)
+        rate_limiter = RateLimiter(enabled=rate_limit)
+        self._http = HTTPClient(self._token_manager, base_url=base_url, timeout=timeout, rate_limiter=rate_limiter)
 
         self.domestic = DomesticAPI(self._http)
         self.overseas = OverseasAPI(self._http)
@@ -100,13 +108,6 @@ class PyDBSec:
         """WebSocket client for real-time data.
 
         Requires: ``pip install pydbsec[ws]``
-
-        Usage::
-
-            async with client.ws as ws:
-                await ws.subscribe("005930", tr_code="S00")
-                async for msg in ws:
-                    print(msg.data)
         """
         if self._ws is None:
             from .ws import DBSecWebSocket
@@ -114,6 +115,58 @@ class PyDBSec:
 
             self._ws = DBSecWebSocket(self._token_manager, ws_url=WS_URL)
         return self._ws
+
+    def portfolio_summary(self, *, include_overseas: bool = True) -> dict[str, Any]:
+        """Get a unified portfolio summary across domestic and overseas.
+
+        Returns a normalized dict with total NAV, cash, profit, and positions.
+
+        Args:
+            include_overseas: Include overseas balance (default: True)
+        """
+        kr_balance = self.domestic.balance()
+
+        result: dict[str, Any] = {
+            "total_nav": kr_balance.deposit_total,
+            "cash": kr_balance.available_cash,
+            "profit": kr_balance.pnl_amount,
+            "ror": kr_balance.pnl_rate,
+            "positions": [
+                {
+                    "region": "KR",
+                    "stock_code": p.stock_code,
+                    "stock_name": p.stock_name,
+                    "quantity": p.quantity,
+                    "current_price": p.current_price,
+                    "eval_amount": p.eval_amount,
+                    "pnl_amount": p.pnl_amount,
+                    "pnl_rate": p.pnl_rate,
+                }
+                for p in kr_balance.positions
+            ],
+        }
+
+        if include_overseas:
+            us_balance = self.overseas.balance()
+            result["total_nav"] += us_balance.eval_total
+            result["cash"] += us_balance.available_cash
+            result["profit"] += us_balance.pnl_amount
+            result["overseas_nav"] = us_balance.eval_total
+            result["positions"] += [
+                {
+                    "region": "US",
+                    "stock_code": p.stock_code,
+                    "stock_name": p.stock_name,
+                    "quantity": p.quantity,
+                    "current_price": p.current_price,
+                    "eval_amount": p.eval_amount,
+                    "pnl_amount": p.pnl_amount,
+                    "pnl_rate": p.pnl_rate,
+                }
+                for p in us_balance.positions
+            ]
+
+        return result
 
     def close(self) -> None:
         """Revoke the access token and close the connection pool."""
@@ -138,6 +191,7 @@ class AsyncPyDBSec:
             async with AsyncPyDBSec(app_key="YOUR_KEY", app_secret="YOUR_SECRET") as client:
                 balance = await client.domestic.balance()
                 price = await client.domestic.price("005930")
+                summary = await client.portfolio_summary()
     """
 
     def __init__(
@@ -150,7 +204,12 @@ class AsyncPyDBSec:
         expires_at: datetime | None = None,
         base_url: str = BASE_URL,
         timeout: float = 30,
+        rate_limit: bool = True,
+        log_level: int | None = None,
     ):
+        if log_level is not None:
+            _configure_logging(log_level)
+
         self._token_manager = TokenManager(
             app_key,
             app_secret,
@@ -159,7 +218,8 @@ class AsyncPyDBSec:
             token_type=token_type,
             expires_at=expires_at,
         )
-        self._http = AsyncHTTPClient(self._token_manager, base_url=base_url, timeout=timeout)
+        rate_limiter = RateLimiter(enabled=rate_limit)
+        self._http = AsyncHTTPClient(self._token_manager, base_url=base_url, timeout=timeout, rate_limiter=rate_limiter)
 
         self.domestic = AsyncDomesticAPI(self._http)
         self.overseas = AsyncOverseasAPI(self._http)
@@ -188,6 +248,52 @@ class AsyncPyDBSec:
             self._ws = DBSecWebSocket(self._token_manager, ws_url=WS_URL)
         return self._ws
 
+    async def portfolio_summary(self, *, include_overseas: bool = True) -> dict[str, Any]:
+        """Get a unified portfolio summary across domestic and overseas."""
+        kr_balance = await self.domestic.balance()
+
+        result: dict[str, Any] = {
+            "total_nav": kr_balance.deposit_total,
+            "cash": kr_balance.available_cash,
+            "profit": kr_balance.pnl_amount,
+            "ror": kr_balance.pnl_rate,
+            "positions": [
+                {
+                    "region": "KR",
+                    "stock_code": p.stock_code,
+                    "stock_name": p.stock_name,
+                    "quantity": p.quantity,
+                    "current_price": p.current_price,
+                    "eval_amount": p.eval_amount,
+                    "pnl_amount": p.pnl_amount,
+                    "pnl_rate": p.pnl_rate,
+                }
+                for p in kr_balance.positions
+            ],
+        }
+
+        if include_overseas:
+            us_balance = await self.overseas.balance()
+            result["total_nav"] += us_balance.eval_total
+            result["cash"] += us_balance.available_cash
+            result["profit"] += us_balance.pnl_amount
+            result["overseas_nav"] = us_balance.eval_total
+            result["positions"] += [
+                {
+                    "region": "US",
+                    "stock_code": p.stock_code,
+                    "stock_name": p.stock_name,
+                    "quantity": p.quantity,
+                    "current_price": p.current_price,
+                    "eval_amount": p.eval_amount,
+                    "pnl_amount": p.pnl_amount,
+                    "pnl_rate": p.pnl_rate,
+                }
+                for p in us_balance.positions
+            ]
+
+        return result
+
     async def aclose(self) -> None:
         """Close the async connection pool and revoke token."""
         await self._http.aclose()
@@ -202,3 +308,13 @@ class AsyncPyDBSec:
 
     async def __aexit__(self, *args: object) -> None:
         await self.aclose()
+
+
+def _configure_logging(level: int) -> None:
+    """Configure the pydbsec logger."""
+    logger = logging.getLogger("pydbsec")
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter("%(asctime)s [%(name)s] %(levelname)s: %(message)s"))
+        logger.addHandler(handler)
+    logger.setLevel(level)
