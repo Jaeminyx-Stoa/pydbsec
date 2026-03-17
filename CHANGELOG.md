@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-03-17
+
+### Added
+
+- **WebSocket real-time data**: `DBSecWebSocket` async client for live market data
+  - Production `wss://openapi.dbsec.co.kr:7070`, sandbox `:17070`
+  - TR codes: S00 (체결가), S01 (호가), IS0/IS1 (주문접수/체결), W00/W01 (ELW), U00 (업종지수)
+  - Async iterator protocol (`async for msg in ws`)
+  - Auto-reconnect with configurable retry
+  - Optional dependency: `pip install pydbsec[ws]`
+- `PyDBSec.ws` / `AsyncPyDBSec.ws` lazy property for WebSocket access
+
+### Fixed
+
+- `base_url` not propagated to `TokenManager` — token requests now use custom base_url
+- Async token refresh blocked event loop — now uses `asyncio.to_thread()`
+
+### Changed
+
+- HTTP clients use persistent connection pools (`httpx.Client` / `AsyncClient`)
+- Pagination results merged into single `dict` (Out1/Out2 lists concatenated)
+- Return type simplified to `dict[str, Any]` (no more `dict | list[dict]` union)
+- Error codes extracted to constants (`ERROR_TOKEN_EXPIRED`, etc.)
+
+[0.2.0]: https://github.com/STOA-company/pydbsec/compare/v0.1.0...v0.2.0
+
 ## [0.1.0] - 2026-03-17
 
 ### Added
