@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 __all__ = [
@@ -26,10 +28,10 @@ class DomesticPosition(BaseModel):
     pnl_amount: float = Field(default=0, description="Unrealized P&L amount")
     pnl_rate: float = Field(default=0, description="Unrealized P&L rate (%)")
 
-    raw: dict = Field(default_factory=dict, description="Raw API response data", exclude=True)
+    raw: dict[str, Any] = Field(default_factory=dict, description="Raw API response data", exclude=True)
 
     @classmethod
-    def from_api(cls, data: dict) -> DomesticPosition:
+    def from_api(cls, data: dict[str, Any]) -> DomesticPosition:
         return cls(
             stock_code=str(data.get("IsuNo", "")),
             stock_name=str(data.get("IsuNm", "")),
@@ -53,10 +55,10 @@ class DomesticBalance(BaseModel):
     pnl_rate: float = Field(default=0, description="Total P&L rate (%)")
     positions: list[DomesticPosition] = Field(default_factory=list, description="Stock positions")
 
-    raw: dict = Field(default_factory=dict, description="Raw API response data", exclude=True)
+    raw: dict[str, Any] = Field(default_factory=dict, description="Raw API response data", exclude=True)
 
     @classmethod
-    def from_api(cls, data: dict) -> DomesticBalance:
+    def from_api(cls, data: dict[str, Any]) -> DomesticBalance:
         summary = data.get("Out", {})
         stocks = data.get("Out1", [])
         return cls(
@@ -82,10 +84,10 @@ class OverseasPosition(BaseModel):
     pnl_amount: float = Field(default=0, description="Unrealized P&L amount")
     pnl_rate: float = Field(default=0, description="Unrealized P&L rate (%)")
 
-    raw: dict = Field(default_factory=dict, description="Raw API response data", exclude=True)
+    raw: dict[str, Any] = Field(default_factory=dict, description="Raw API response data", exclude=True)
 
     @classmethod
-    def from_api(cls, data: dict) -> OverseasPosition:
+    def from_api(cls, data: dict[str, Any]) -> OverseasPosition:
         return cls(
             stock_code=str(data.get("AstkIsuNo", data.get("IsuNo", ""))),
             stock_name=str(data.get("IsuNm", "")),
@@ -109,10 +111,10 @@ class OverseasBalance(BaseModel):
     pnl_rate: float = Field(default=0, description="Total P&L rate (%)")
     positions: list[OverseasPosition] = Field(default_factory=list, description="Stock positions")
 
-    raw: dict = Field(default_factory=dict, description="Raw API response data", exclude=True)
+    raw: dict[str, Any] = Field(default_factory=dict, description="Raw API response data", exclude=True)
 
     @classmethod
-    def from_api(cls, data: dict) -> OverseasBalance:
+    def from_api(cls, data: dict[str, Any]) -> OverseasBalance:
         summary = data.get("Out", {})
         stocks = data.get("Out1", data.get("Out2", []))
         return cls(
@@ -136,10 +138,10 @@ class FuturesPosition(BaseModel):
     eval_amount: float = Field(default=0, description="Evaluation amount")
     pnl_amount: float = Field(default=0, description="Unrealized P&L")
 
-    raw: dict = Field(default_factory=dict, description="Raw API response data", exclude=True)
+    raw: dict[str, Any] = Field(default_factory=dict, description="Raw API response data", exclude=True)
 
     @classmethod
-    def from_api(cls, data: dict) -> FuturesPosition:
+    def from_api(cls, data: dict[str, Any]) -> FuturesPosition:
         return cls(
             stock_code=str(data.get("IsuNo", "")),
             stock_name=str(data.get("IsuNm", "")),
@@ -161,10 +163,10 @@ class FuturesBalance(BaseModel):
     commission: float = Field(default=0, description="Commission")
     positions: list[FuturesPosition] = Field(default_factory=list)
 
-    raw: dict = Field(default_factory=dict, description="Raw API response data", exclude=True)
+    raw: dict[str, Any] = Field(default_factory=dict, description="Raw API response data", exclude=True)
 
     @classmethod
-    def from_api(cls, data: dict) -> FuturesBalance:
+    def from_api(cls, data: dict[str, Any]) -> FuturesBalance:
         summary = data.get("Out", {})
         stocks = data.get("Out1", [])
         return cls(

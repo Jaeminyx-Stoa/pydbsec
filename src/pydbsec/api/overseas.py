@@ -53,7 +53,7 @@ class OverseasAPI:
         """
         data = _build_overseas_order("2", stock_code, quantity, price, price_type, order_condition, "0", 0)
         result = self._http.request(OVERSEAS_ORDER, data, paginate=False)
-        return OrderResult.from_api(result)  # type: ignore[arg-type]
+        return OrderResult.from_api(result)
 
     def sell(
         self,
@@ -67,13 +67,13 @@ class OverseasAPI:
         """Place an overseas sell order."""
         data = _build_overseas_order("1", stock_code, quantity, price, price_type, order_condition, "0", 0)
         result = self._http.request(OVERSEAS_ORDER, data, paginate=False)
-        return OrderResult.from_api(result)  # type: ignore[arg-type]
+        return OrderResult.from_api(result)
 
     def cancel(self, order_no: int, stock_code: str, quantity: int) -> OrderResult:
         """Cancel an overseas order."""
         data = _build_overseas_order("1", stock_code, quantity, 0, "1", "1", "2", order_no)
         result = self._http.request(OVERSEAS_ORDER, data, paginate=False)
-        return OrderResult.from_api(result)  # type: ignore[arg-type]
+        return OrderResult.from_api(result)
 
     # ── Balance & Account ──
 
@@ -102,12 +102,12 @@ class OverseasAPI:
             }
         }
         result = self._http.request(OVERSEAS_BALANCE, data)
-        return OverseasBalance.from_api(result)  # type: ignore[arg-type]
+        return OverseasBalance.from_api(result)
 
     def deposit(self) -> dict[str, Any]:
         """Get overseas deposit details."""
         result = self._http.request(OVERSEAS_DEPOSIT)
-        return result  # type: ignore[return-value]
+        return result
 
     def orderable_quantity(
         self,
@@ -129,7 +129,7 @@ class OverseasAPI:
             "In": {"TrxTpCode": side, "AstkIsuNo": stock_code, "AstkOrdPrc": price, "WonFcurrTpCode": currency_type}
         }
         result = self._http.request(OVERSEAS_ABLE_ORDER_QTY, data)
-        return result  # type: ignore[return-value]
+        return result
 
     # ── History ──
 
@@ -181,13 +181,13 @@ class OverseasAPI:
         """
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": stock_code}}
         result = self._http.request(OVERSEAS_STOCK_PRICE, data, paginate=False)
-        return StockPrice.from_api(result)  # type: ignore[arg-type]
+        return StockPrice.from_api(result)
 
     def order_book(self, stock_code: str, *, market: str = MARKET_NYSE) -> OrderBook:
         """Get overseas order book."""
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": stock_code}}
         result = self._http.request(OVERSEAS_ORDER_BOOK, data, paginate=False)
-        return OrderBook.from_api(result)  # type: ignore[arg-type]
+        return OrderBook.from_api(result)
 
     def tickers(self, *, market: str = "NY") -> dict[str, Any]:
         """Get overseas stock tickers.
@@ -239,19 +239,19 @@ class AsyncOverseasAPI:
     ) -> OrderResult:
         data = _build_overseas_order("2", stock_code, quantity, price, price_type, order_condition, "0", 0)
         result = await self._http.request(OVERSEAS_ORDER, data, paginate=False)
-        return OrderResult.from_api(result)  # type: ignore[arg-type]
+        return OrderResult.from_api(result)
 
     async def sell(
         self, stock_code: str, quantity: int, price: float = 0, *, price_type: str = "1", order_condition: str = "1"
     ) -> OrderResult:
         data = _build_overseas_order("1", stock_code, quantity, price, price_type, order_condition, "0", 0)
         result = await self._http.request(OVERSEAS_ORDER, data, paginate=False)
-        return OrderResult.from_api(result)  # type: ignore[arg-type]
+        return OrderResult.from_api(result)
 
     async def cancel(self, order_no: int, stock_code: str, quantity: int) -> OrderResult:
         data = _build_overseas_order("1", stock_code, quantity, 0, "1", "1", "2", order_no)
         result = await self._http.request(OVERSEAS_ORDER, data, paginate=False)
-        return OrderResult.from_api(result)  # type: ignore[arg-type]
+        return OrderResult.from_api(result)
 
     async def balance(
         self, *, balance_type: str = "2", commission_type: str = "1", currency_type: str = "2", decimal_type: str = "0"
@@ -265,11 +265,11 @@ class AsyncOverseasAPI:
             }
         }
         result = await self._http.request(OVERSEAS_BALANCE, data)
-        return OverseasBalance.from_api(result)  # type: ignore[arg-type]
+        return OverseasBalance.from_api(result)
 
     async def deposit(self) -> dict[str, Any]:
         result = await self._http.request(OVERSEAS_DEPOSIT)
-        return result  # type: ignore[return-value]
+        return result
 
     async def orderable_quantity(
         self, stock_code: str, price: float, *, side: str = "2", currency_type: str = "2"
@@ -278,7 +278,7 @@ class AsyncOverseasAPI:
             "In": {"TrxTpCode": side, "AstkIsuNo": stock_code, "AstkOrdPrc": price, "WonFcurrTpCode": currency_type}
         }
         result = await self._http.request(OVERSEAS_ABLE_ORDER_QTY, data)
-        return result  # type: ignore[return-value]
+        return result
 
     async def transaction_history(
         self,
@@ -311,12 +311,12 @@ class AsyncOverseasAPI:
     async def price(self, stock_code: str, *, market: str = MARKET_NYSE) -> StockPrice:
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": stock_code}}
         result = await self._http.request(OVERSEAS_STOCK_PRICE, data, paginate=False)
-        return StockPrice.from_api(result)  # type: ignore[arg-type]
+        return StockPrice.from_api(result)
 
     async def order_book(self, stock_code: str, *, market: str = MARKET_NYSE) -> OrderBook:
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": stock_code}}
         result = await self._http.request(OVERSEAS_ORDER_BOOK, data, paginate=False)
-        return OrderBook.from_api(result)  # type: ignore[arg-type]
+        return OrderBook.from_api(result)
 
     async def tickers(self, *, market: str = "NY") -> dict[str, Any]:
         data = {"In": {"InputDataCode": market}}

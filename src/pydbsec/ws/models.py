@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 __all__ = ["RealtimeTick", "RealtimeOrderBook", "WSMessage"]
@@ -18,7 +20,7 @@ class RealtimeTick(BaseModel):
     volume: int = Field(default=0, description="Execution volume")
     timestamp: str = Field(default="", description="Execution time")
 
-    raw: dict | str = Field(default_factory=dict, description="Raw message data", exclude=True)
+    raw: dict[str, Any] | str = Field(default_factory=dict, description="Raw message data", exclude=True)
 
 
 class RealtimeOrderBook(BaseModel):
@@ -28,11 +30,11 @@ class RealtimeOrderBook(BaseModel):
     stock_code: str = Field(default="", description="Stock code")
     timestamp: str = Field(default="", description="Time")
 
-    raw: dict | str = Field(default_factory=dict, description="Raw message data", exclude=True)
+    raw: dict[str, Any] | str = Field(default_factory=dict, description="Raw message data", exclude=True)
 
 
 class WSMessage(BaseModel):
     """Generic WebSocket message wrapper."""
 
     tr_code: str = Field(default="", description="TR code")
-    data: dict | str | list = Field(default_factory=dict, description="Message payload")
+    data: dict[str, Any] | str | list[Any] = Field(default_factory=dict, description="Message payload")
