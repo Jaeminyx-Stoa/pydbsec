@@ -152,6 +152,58 @@ import logging
 client = PyDBSec(app_key="...", app_secret="...", log_level=logging.DEBUG)
 ```
 
+### MCP Server (AI 어시스턴트 연동)
+
+Claude Desktop, Cursor 등 AI 도구에서 DB증권 API를 직접 호출할 수 있습니다.
+
+```bash
+pip install pydbsec[mcp]
+```
+
+**Claude Desktop** (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "dbsec": {
+      "command": "pydbsec-mcp",
+      "env": {
+        "DBSEC_APP_KEY": "your_app_key",
+        "DBSEC_APP_SECRET": "your_app_secret"
+      }
+    }
+  }
+}
+```
+
+**Claude Code**:
+
+```bash
+claude mcp add dbsec -- env DBSEC_APP_KEY=your_key DBSEC_APP_SECRET=your_secret pydbsec-mcp
+```
+
+AI에게 "삼성전자 현재가 알려줘" → `get_stock_price("005930")` 자동 호출.
+
+**Anthropic API에서 직접 사용**:
+
+```python
+from pydbsec.mcp.helpers import get_anthropic_tools, execute_tool
+import anthropic
+
+client = anthropic.Anthropic()
+response = client.messages.create(
+    model="claude-opus-4-6",
+    max_tokens=4096,
+    tools=get_anthropic_tools(),
+    messages=[{"role": "user", "content": "삼성전자 현재가 알려줘"}],
+)
+
+# Agentic loop에서 tool 실행
+for block in response.content:
+    if block.type == "tool_use":
+        result = execute_tool(block.name, block.input)
+```
+
 ## API Reference
 
 ### `client.domestic` — 국내 주식
