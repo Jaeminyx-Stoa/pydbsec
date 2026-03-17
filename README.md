@@ -1,8 +1,21 @@
 # pydbsec
 
-Python wrapper for **DB Securities (DB증권) OpenAPI**.
+[![PyPI version](https://img.shields.io/pypi/v/pydbsec.svg)](https://pypi.org/project/pydbsec/)
+[![Python](https://img.shields.io/pypi/pyversions/pydbsec.svg)](https://pypi.org/project/pydbsec/)
+[![CI](https://github.com/STOA-company/pydbsec/actions/workflows/ci.yml/badge.svg)](https://github.com/STOA-company/pydbsec/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-DB증권 OpenAPI를 쉽게 사용할 수 있는 Python 라이브러리입니다.
+**DB증권 OpenAPI Python 래퍼** — 3줄이면 잔고 조회, 5줄이면 자동매매
+
+> DB증권 OpenAPI를 쉽게 사용할 수 있는 Python 라이브러리입니다.
+> [한국투자증권의 PyKIS](https://github.com/Soju06/python-kis)처럼, DB증권도 Python 한 줄이면 됩니다.
+
+```python
+from pydbsec import PyDBSec
+
+client = PyDBSec(app_key="...", app_secret="...")
+print(client.domestic.price("005930").current_price)  # 삼성전자 현재가
+```
 
 ## Features
 

@@ -5,14 +5,21 @@ build-backend = "hatchling.build"
 [project]
 name = "pydbsec"
 version = "0.1.0"
-description = "Python wrapper for DB Securities (DB증권) OpenAPI"
+description = "Python wrapper for DB Securities (DB증권) OpenAPI — Stock trading, balance, quotes, charts for Korean & US markets"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 authors = [
     { name = "STOA Company" },
 ]
-keywords = ["db-securities", "trading", "stock", "korea", "api"]
+keywords = [
+    "db-securities", "dbsec", "DB증권",
+    "trading", "stock", "finance", "quant",
+    "korea", "korean-stock", "us-stock",
+    "api", "api-wrapper", "openapi",
+    "algorithmic-trading", "auto-trading",
+    "pykis", "pykrx",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
