@@ -1,4 +1,4 @@
-"""HTTP client with connection pooling, automatic pagination, and token refresh."""
+"""HTTP client with connection pooling, rate limiting, pagination, and token refresh."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ import httpx
 from .auth import TokenManager
 from .constants import BASE_URL, ERROR_TOKEN_EXPIRED
 from .exceptions import APIError
+from .ratelimit import RateLimiter
 
 logger = logging.getLogger("pydbsec")
 
@@ -22,12 +23,20 @@ _LIST_KEYS = ("Out1", "Out2", "Out3")
 
 
 class HTTPClient:
-    """Synchronous HTTP client with connection pooling for DB Securities API."""
+    """Synchronous HTTP client with connection pooling and rate limiting."""
 
-    def __init__(self, token_manager: TokenManager, *, base_url: str = BASE_URL, timeout: float = 30):
+    def __init__(
+        self,
+        token_manager: TokenManager,
+        *,
+        base_url: str = BASE_URL,
+        timeout: float = 30,
+        rate_limiter: RateLimiter | None = None,
+    ):
         self._token_manager = token_manager
         self._base_url = base_url
         self._client = httpx.Client(base_url=base_url, timeout=timeout)
+        self._rate_limiter = rate_limiter
 
     def request(
         self,
@@ -59,6 +68,9 @@ class HTTPClient:
         _accumulated: dict[str, Any] | None = None,
         _page_count: int = 0,
     ) -> dict[str, Any]:
+        if self._rate_limiter:
+            self._rate_limiter.wait(endpoint)
+
         headers: dict[str, str] = {
             "Content-Type": "application/json",
             "Authorization": self._token_manager.authorization,
@@ -119,12 +131,20 @@ class HTTPClient:
 
 
 class AsyncHTTPClient:
-    """Asynchronous HTTP client with connection pooling for DB Securities API."""
+    """Asynchronous HTTP client with connection pooling and rate limiting."""
 
-    def __init__(self, token_manager: TokenManager, *, base_url: str = BASE_URL, timeout: float = 30):
+    def __init__(
+        self,
+        token_manager: TokenManager,
+        *,
+        base_url: str = BASE_URL,
+        timeout: float = 30,
+        rate_limiter: RateLimiter | None = None,
+    ):
         self._token_manager = token_manager
         self._base_url = base_url
         self._client = httpx.AsyncClient(base_url=base_url, timeout=timeout)
+        self._rate_limiter = rate_limiter
 
     async def request(
         self,
@@ -151,6 +171,9 @@ class AsyncHTTPClient:
         _page_count: int = 0,
     ) -> dict[str, Any]:
         import asyncio
+
+        if self._rate_limiter:
+            await self._rate_limiter.async_wait(endpoint)
 
         headers: dict[str, str] = {
             "Content-Type": "application/json",
