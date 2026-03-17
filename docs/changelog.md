@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-03-17
+
+### Added
+
+- **CLI tool** — `pydbsec` command for terminal-based API access
+  - `pydbsec price 005930` — stock price lookup
+  - `pydbsec balance` / `pydbsec balance --overseas` — balance inquiry
+  - `pydbsec portfolio` — unified KR+US portfolio summary
+  - `pydbsec buy/sell` — order placement
+  - `--json` flag for raw JSON output
+  - Credentials via `DBSEC_APP_KEY`/`DBSEC_APP_SECRET` env vars or `--key`/`--secret` flags
+- **Rate limiting** (enabled by default) — token bucket per endpoint, respects DB Securities rate limits
+- **`portfolio_summary()`** — unified domestic+overseas balance in a single call
+- **Configurable logging** — `PyDBSec(log_level=logging.DEBUG)`
+
+### Fixed
+
+- All 60 mypy strict type errors resolved (0 errors on 19 source files)
+- `base_url` propagation to `TokenManager`
+- Async token refresh event loop blocking
+
+[0.3.0]: https://github.com/STOA-company/pydbsec/compare/v0.2.0...v0.3.0
+
 ## [0.2.0] - 2026-03-17
 
 ### Added
