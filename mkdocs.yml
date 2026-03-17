@@ -37,11 +37,19 @@ theme:
     repo: fontawesome/brands/github
 
 extra:
+  generator: false
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/STOA-company/pydbsec
+      link: https://github.com/STOA-company
+      name: STOA Company on GitHub
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/pydbsec/
+      name: pydbsec on PyPI
+    - icon: fontawesome/brands/npm
+      link: https://www.npmjs.com/package/pydbsec-mcp
+      name: pydbsec-mcp on npm
+
+copyright: "&copy; 2024-2026 STOA Company — Makers of <a href='https://quantus.kr'>Quantus</a>"
 
 markdown_extensions:
   - pymdownx.highlight:
