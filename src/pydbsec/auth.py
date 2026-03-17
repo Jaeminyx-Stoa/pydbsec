@@ -28,12 +28,14 @@ class TokenManager:
         app_key: str,
         app_secret: str,
         *,
+        base_url: str = BASE_URL,
         token: str | None = None,
         token_type: str | None = None,
         expires_at: datetime | None = None,
     ):
         self._app_key = app_key
         self._app_secret = app_secret
+        self._base_url = base_url
         self._token = token
         self._token_type = token_type
         self._expires_at = expires_at
@@ -84,7 +86,7 @@ class TokenManager:
         for attempt in range(1, _MAX_TOKEN_RETRIES + 1):
             try:
                 logger.debug("Requesting access token (attempt %d/%d)", attempt, _MAX_TOKEN_RETRIES)
-                response = httpx.post(f"{BASE_URL}{OAUTH_TOKEN_URL}", headers=headers, data=data, timeout=30)
+                response = httpx.post(f"{self._base_url}{OAUTH_TOKEN_URL}", headers=headers, data=data, timeout=30)
                 response.raise_for_status()
                 token_data: dict[str, Any] = response.json()
 
@@ -136,7 +138,7 @@ class TokenManager:
             "token": self._token,
             "token_type_hint": "access_token",
         }
-        response = httpx.post(f"{BASE_URL}{OAUTH_REVOKE_URL}", headers=headers, data=data, timeout=30)
+        response = httpx.post(f"{self._base_url}{OAUTH_REVOKE_URL}", headers=headers, data=data, timeout=30)
         response.raise_for_status()
         result: dict[str, Any] = response.json()
 
