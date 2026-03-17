@@ -19,7 +19,7 @@ class FuturesAPI:
         """Get domestic futures/options balance."""
         data: dict[str, Any] = {"In": {}}
         result = self._http.request(FUTURES_BALANCE, data)
-        return FuturesBalance.from_api(result)  # type: ignore[arg-type]
+        return FuturesBalance.from_api(result)
 
 
 class AsyncFuturesAPI:
@@ -32,4 +32,4 @@ class AsyncFuturesAPI:
         """Get domestic futures/options balance."""
         data: dict[str, Any] = {"In": {}}
         result = await self._http.request(FUTURES_BALANCE, data)
-        return FuturesBalance.from_api(result)  # type: ignore[arg-type]
+        return FuturesBalance.from_api(result)

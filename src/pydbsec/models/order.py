@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 __all__ = ["OrderResult"]
@@ -14,10 +16,10 @@ class OrderResult(BaseModel):
     order_no: int = Field(default=0, description="Order number assigned by the exchange")
     message: str = Field(default="", description="Response message")
 
-    raw: dict = Field(default_factory=dict, description="Raw API response data", exclude=True)
+    raw: dict[str, Any] = Field(default_factory=dict, description="Raw API response data", exclude=True)
 
     @classmethod
-    def from_api(cls, data: dict) -> OrderResult:
+    def from_api(cls, data: dict[str, Any]) -> OrderResult:
         rsp_cd = str(data.get("rsp_cd", ""))
         out = data.get("Out", {})
         return cls(

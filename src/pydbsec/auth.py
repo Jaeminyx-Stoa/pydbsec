@@ -114,16 +114,16 @@ class TokenManager:
 
                 time.sleep(_RETRY_WAIT_SECONDS * attempt)
 
-        status_code = None
-        body: dict[str, Any] | str | None = None
+        final_status_code = None
+        final_body: dict[str, Any] | str | None = None
         if isinstance(last_error, httpx.HTTPStatusError):
-            status_code = last_error.response.status_code
-            body = _safe_json(last_error.response)
+            final_status_code = last_error.response.status_code
+            final_body = _safe_json(last_error.response)
 
         raise TokenError(
             f"Failed to obtain access token after {_MAX_TOKEN_RETRIES} attempts",
-            status_code=status_code,
-            response_body=body,
+            status_code=final_status_code,
+            response_body=final_body,
         )
 
     def revoke(self) -> dict[str, Any]:

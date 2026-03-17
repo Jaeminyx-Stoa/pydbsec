@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 __all__ = ["StockPrice", "OrderBook"]
@@ -18,10 +20,10 @@ class StockPrice(BaseModel):
     high_price: float = Field(default=0, description="High price")
     low_price: float = Field(default=0, description="Low price")
 
-    raw: dict = Field(default_factory=dict, description="Raw API response data", exclude=True)
+    raw: dict[str, Any] = Field(default_factory=dict, description="Raw API response data", exclude=True)
 
     @classmethod
-    def from_api(cls, data: dict) -> StockPrice:
+    def from_api(cls, data: dict[str, Any]) -> StockPrice:
         out = data.get("Out", {})
         return cls(
             current_price=float(out.get("Prpr", out.get("NowPrc", 0))),
@@ -38,8 +40,8 @@ class StockPrice(BaseModel):
 class OrderBook(BaseModel):
     """Order book (호가) data."""
 
-    raw: dict = Field(default_factory=dict, description="Raw API response data")
+    raw: dict[str, Any] = Field(default_factory=dict, description="Raw API response data")
 
     @classmethod
-    def from_api(cls, data: dict) -> OrderBook:
+    def from_api(cls, data: dict[str, Any]) -> OrderBook:
         return cls(raw=data)

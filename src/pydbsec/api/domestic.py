@@ -61,7 +61,7 @@ class DomesticAPI:
             "2", stock_code, quantity, price, price_type, credit_type, loan_date, order_condition
         )
         result = self._http.request(DOMESTIC_ORDER, data, paginate=False)
-        return OrderResult.from_api(result)  # type: ignore[arg-type]
+        return OrderResult.from_api(result)
 
     def sell(
         self,
@@ -79,13 +79,13 @@ class DomesticAPI:
             "1", stock_code, quantity, price, price_type, credit_type, loan_date, order_condition
         )
         result = self._http.request(DOMESTIC_ORDER, data, paginate=False)
-        return OrderResult.from_api(result)  # type: ignore[arg-type]
+        return OrderResult.from_api(result)
 
     def cancel(self, order_no: int, stock_code: str, quantity: int) -> OrderResult:
         """Cancel an existing order."""
         data = {"In": {"OrgOrdNo": order_no, "IsuNo": stock_code, "OrdQty": quantity}}
         result = self._http.request(DOMESTIC_CANCEL_ORDER, data, paginate=False)
-        return OrderResult.from_api(result)  # type: ignore[arg-type]
+        return OrderResult.from_api(result)
 
     # ── Balance & Account ──
 
@@ -97,12 +97,12 @@ class DomesticAPI:
         """
         data = {"In": {"QryTpCode": query_type}}
         result = self._http.request(DOMESTIC_BALANCE, data)
-        return DomesticBalance.from_api(result)  # type: ignore[arg-type]
+        return DomesticBalance.from_api(result)
 
     def deposit(self) -> dict[str, Any]:
         """Get account deposit info."""
         result = self._http.request(DOMESTIC_DEPOSIT)
-        return result  # type: ignore[return-value]
+        return result
 
     def orderable_quantity(self, stock_code: str, price: float, *, side: str = "2") -> dict[str, Any]:
         """Get orderable quantity for a stock.
@@ -115,7 +115,7 @@ class DomesticAPI:
         isu_no = f"A{stock_code}" if not stock_code.startswith("A") else stock_code
         data = {"In": {"BnsTpCode": side, "IsuNo": isu_no, "OrdPrc": price}}
         result = self._http.request(DOMESTIC_ABLE_ORDER_QTY, data)
-        return result  # type: ignore[return-value]
+        return result
 
     # ── History ──
 
@@ -177,13 +177,13 @@ class DomesticAPI:
         """
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": stock_code}}
         result = self._http.request(DOMESTIC_STOCK_PRICE, data, paginate=False)
-        return StockPrice.from_api(result)  # type: ignore[arg-type]
+        return StockPrice.from_api(result)
 
     def order_book(self, stock_code: str, *, market: str = "UJ") -> OrderBook:
         """Get order book (호가)."""
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": stock_code}}
         result = self._http.request(DOMESTIC_ORDER_BOOK, data, paginate=False)
-        return OrderBook.from_api(result)  # type: ignore[arg-type]
+        return OrderBook.from_api(result)
 
     def tickers(self, *, market: str = "UJ") -> dict[str, Any]:
         """Get stock tickers list."""
@@ -241,7 +241,7 @@ class AsyncDomesticAPI:
             "2", stock_code, quantity, price, price_type, credit_type, loan_date, order_condition
         )
         result = await self._http.request(DOMESTIC_ORDER, data, paginate=False)
-        return OrderResult.from_api(result)  # type: ignore[arg-type]
+        return OrderResult.from_api(result)
 
     async def sell(
         self,
@@ -258,27 +258,27 @@ class AsyncDomesticAPI:
             "1", stock_code, quantity, price, price_type, credit_type, loan_date, order_condition
         )
         result = await self._http.request(DOMESTIC_ORDER, data, paginate=False)
-        return OrderResult.from_api(result)  # type: ignore[arg-type]
+        return OrderResult.from_api(result)
 
     async def cancel(self, order_no: int, stock_code: str, quantity: int) -> OrderResult:
         data = {"In": {"OrgOrdNo": order_no, "IsuNo": stock_code, "OrdQty": quantity}}
         result = await self._http.request(DOMESTIC_CANCEL_ORDER, data, paginate=False)
-        return OrderResult.from_api(result)  # type: ignore[arg-type]
+        return OrderResult.from_api(result)
 
     async def balance(self, *, query_type: str = "2") -> DomesticBalance:
         data = {"In": {"QryTpCode": query_type}}
         result = await self._http.request(DOMESTIC_BALANCE, data)
-        return DomesticBalance.from_api(result)  # type: ignore[arg-type]
+        return DomesticBalance.from_api(result)
 
     async def deposit(self) -> dict[str, Any]:
         result = await self._http.request(DOMESTIC_DEPOSIT)
-        return result  # type: ignore[return-value]
+        return result
 
     async def orderable_quantity(self, stock_code: str, price: float, *, side: str = "2") -> dict[str, Any]:
         isu_no = f"A{stock_code}" if not stock_code.startswith("A") else stock_code
         data = {"In": {"BnsTpCode": side, "IsuNo": isu_no, "OrdPrc": price}}
         result = await self._http.request(DOMESTIC_ABLE_ORDER_QTY, data)
-        return result  # type: ignore[return-value]
+        return result
 
     async def transaction_history(
         self, *, execution_status: str = "0", order_type: str = "0", stock_type: str = "0", query_type: str = "0"
@@ -306,12 +306,12 @@ class AsyncDomesticAPI:
     async def price(self, stock_code: str, *, market: str = "UJ") -> StockPrice:
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": stock_code}}
         result = await self._http.request(DOMESTIC_STOCK_PRICE, data, paginate=False)
-        return StockPrice.from_api(result)  # type: ignore[arg-type]
+        return StockPrice.from_api(result)
 
     async def order_book(self, stock_code: str, *, market: str = "UJ") -> OrderBook:
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": stock_code}}
         result = await self._http.request(DOMESTIC_ORDER_BOOK, data, paginate=False)
-        return OrderBook.from_api(result)  # type: ignore[arg-type]
+        return OrderBook.from_api(result)
 
     async def tickers(self, *, market: str = "UJ") -> dict[str, Any]:
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": None}}
