@@ -49,12 +49,16 @@ dev = [
 ws = [
     "websockets>=12.0",
 ]
+mcp = [
+    "mcp[cli]>=1.0.0",
+]
 docs = [
     "mkdocs-material>=9.5",
 ]
 
 [project.scripts]
 pydbsec = "pydbsec.cli:main"
+pydbsec-mcp = "pydbsec.mcp.server:run_server"
 
 [project.urls]
 Homepage = "https://github.com/STOA-company/pydbsec"
