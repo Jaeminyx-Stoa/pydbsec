@@ -125,7 +125,9 @@ class OverseasAPI:
             side: "1"=sell, "2"=buy (default)
             currency_type: "1"=KRW, "2"=foreign (default)
         """
-        data = {"In": {"TrxTpCode": side, "AstkIsuNo": stock_code, "AstkOrdPrc": price, "WonFcurrTpCode": currency_type}}
+        data = {
+            "In": {"TrxTpCode": side, "AstkIsuNo": stock_code, "AstkOrdPrc": price, "WonFcurrTpCode": currency_type}
+        }
         result = self._http.request(OVERSEAS_ABLE_ORDER_QTY, data)
         return result  # type: ignore[return-value]
 
@@ -220,7 +222,9 @@ class OverseasAPI:
             market: "FY"=NYSE, "FN"=NASDAQ, "FA"=AMEX
             adjust_price: "0"=unadjusted, "1"=adjusted (default)
         """
-        endpoint, data = _build_overseas_chart(stock_code, period, start_date, end_date, time_interval, market, adjust_price)
+        endpoint, data = _build_overseas_chart(
+            stock_code, period, start_date, end_date, time_interval, market, adjust_price
+        )
         return self._http.request(endpoint, data)
 
 
@@ -230,12 +234,16 @@ class AsyncOverseasAPI:
     def __init__(self, http: AsyncHTTPClient):
         self._http = http
 
-    async def buy(self, stock_code: str, quantity: int, price: float = 0, *, price_type: str = "1", order_condition: str = "1") -> OrderResult:
+    async def buy(
+        self, stock_code: str, quantity: int, price: float = 0, *, price_type: str = "1", order_condition: str = "1"
+    ) -> OrderResult:
         data = _build_overseas_order("2", stock_code, quantity, price, price_type, order_condition, "0", 0)
         result = await self._http.request(OVERSEAS_ORDER, data, paginate=False)
         return OrderResult.from_api(result)  # type: ignore[arg-type]
 
-    async def sell(self, stock_code: str, quantity: int, price: float = 0, *, price_type: str = "1", order_condition: str = "1") -> OrderResult:
+    async def sell(
+        self, stock_code: str, quantity: int, price: float = 0, *, price_type: str = "1", order_condition: str = "1"
+    ) -> OrderResult:
         data = _build_overseas_order("1", stock_code, quantity, price, price_type, order_condition, "0", 0)
         result = await self._http.request(OVERSEAS_ORDER, data, paginate=False)
         return OrderResult.from_api(result)  # type: ignore[arg-type]
@@ -245,8 +253,17 @@ class AsyncOverseasAPI:
         result = await self._http.request(OVERSEAS_ORDER, data, paginate=False)
         return OrderResult.from_api(result)  # type: ignore[arg-type]
 
-    async def balance(self, *, balance_type: str = "2", commission_type: str = "1", currency_type: str = "2", decimal_type: str = "0") -> OverseasBalance:
-        data = {"In": {"TrxTpCode": balance_type, "CmsnTpCode": commission_type, "WonFcurrTpCode": currency_type, "DpntBalTpCode": decimal_type}}
+    async def balance(
+        self, *, balance_type: str = "2", commission_type: str = "1", currency_type: str = "2", decimal_type: str = "0"
+    ) -> OverseasBalance:
+        data = {
+            "In": {
+                "TrxTpCode": balance_type,
+                "CmsnTpCode": commission_type,
+                "WonFcurrTpCode": currency_type,
+                "DpntBalTpCode": decimal_type,
+            }
+        }
         result = await self._http.request(OVERSEAS_BALANCE, data)
         return OverseasBalance.from_api(result)  # type: ignore[arg-type]
 
@@ -254,20 +271,39 @@ class AsyncOverseasAPI:
         result = await self._http.request(OVERSEAS_DEPOSIT)
         return result  # type: ignore[return-value]
 
-    async def orderable_quantity(self, stock_code: str, price: float, *, side: str = "2", currency_type: str = "2") -> dict[str, Any]:
-        data = {"In": {"TrxTpCode": side, "AstkIsuNo": stock_code, "AstkOrdPrc": price, "WonFcurrTpCode": currency_type}}
+    async def orderable_quantity(
+        self, stock_code: str, price: float, *, side: str = "2", currency_type: str = "2"
+    ) -> dict[str, Any]:
+        data = {
+            "In": {"TrxTpCode": side, "AstkIsuNo": stock_code, "AstkOrdPrc": price, "WonFcurrTpCode": currency_type}
+        }
         result = await self._http.request(OVERSEAS_ABLE_ORDER_QTY, data)
         return result  # type: ignore[return-value]
 
     async def transaction_history(
-        self, start_date: str, end_date: str, *, stock_code: str = "", order_type: str = "0",
-        execution_status: str = "0", sort_type: str = "0", query_type: str = "0", currency_type: str = "2",
+        self,
+        start_date: str,
+        end_date: str,
+        *,
+        stock_code: str = "",
+        order_type: str = "0",
+        execution_status: str = "0",
+        sort_type: str = "0",
+        query_type: str = "0",
+        currency_type: str = "2",
     ) -> dict[str, Any] | list[dict[str, Any]]:
         data = {
             "In": {
-                "QrySrtDt": start_date, "QryEndDt": end_date, "AstkIsuNo": stock_code,
-                "AstkBnsTpCode": order_type, "OrdxctTpCode": execution_status, "StnlnTpCode": sort_type,
-                "QryTpCode": query_type, "OnlineYn": "0", "CvrgOrdYn": "0", "WonFcurrTpCode": currency_type,
+                "QrySrtDt": start_date,
+                "QryEndDt": end_date,
+                "AstkIsuNo": stock_code,
+                "AstkBnsTpCode": order_type,
+                "OrdxctTpCode": execution_status,
+                "StnlnTpCode": sort_type,
+                "QryTpCode": query_type,
+                "OnlineYn": "0",
+                "CvrgOrdYn": "0",
+                "WonFcurrTpCode": currency_type,
             }
         }
         return await self._http.request(OVERSEAS_TRANSACTION_HISTORY, data)
@@ -287,10 +323,19 @@ class AsyncOverseasAPI:
         return await self._http.request(OVERSEAS_STOCK_TICKER, data)
 
     async def chart(
-        self, stock_code: str, *, period: str = "day", start_date: str = "", end_date: str = "",
-        time_interval: str = "60", market: str = MARKET_NYSE, adjust_price: str = "1",
+        self,
+        stock_code: str,
+        *,
+        period: str = "day",
+        start_date: str = "",
+        end_date: str = "",
+        time_interval: str = "60",
+        market: str = MARKET_NYSE,
+        adjust_price: str = "1",
     ) -> dict[str, Any] | list[dict[str, Any]]:
-        endpoint, data = _build_overseas_chart(stock_code, period, start_date, end_date, time_interval, market, adjust_price)
+        endpoint, data = _build_overseas_chart(
+            stock_code, period, start_date, end_date, time_interval, market, adjust_price
+        )
         return await self._http.request(endpoint, data)
 
 
@@ -298,8 +343,14 @@ class AsyncOverseasAPI:
 
 
 def _build_overseas_order(
-    side: str, stock_code: str, quantity: int, price: float,
-    price_type: str, order_condition: str, trade_type: str, original_order_no: int,
+    side: str,
+    stock_code: str,
+    quantity: int,
+    price: float,
+    price_type: str,
+    order_condition: str,
+    trade_type: str,
+    original_order_no: int,
 ) -> dict[str, Any]:
     return {
         "In": {
@@ -316,8 +367,13 @@ def _build_overseas_order(
 
 
 def _build_overseas_chart(
-    stock_code: str, period: str, start_date: str, end_date: str,
-    time_interval: str, market: str, adjust_price: str,
+    stock_code: str,
+    period: str,
+    start_date: str,
+    end_date: str,
+    time_interval: str,
+    market: str,
+    adjust_price: str,
 ) -> tuple[str, dict[str, Any]]:
     base_in: dict[str, Any] = {
         "InputCondMrktDivCode": market,
@@ -326,13 +382,15 @@ def _build_overseas_chart(
     }
 
     if period == "minute":
-        base_in.update({
-            "InputPwDataIncuYn": "Y",
-            "InputHourClsCode": "0",
-            "InputDate1": start_date,
-            "InputDate2": end_date,
-            "InputDivXtick": time_interval,
-        })
+        base_in.update(
+            {
+                "InputPwDataIncuYn": "Y",
+                "InputHourClsCode": "0",
+                "InputDate1": start_date,
+                "InputDate2": end_date,
+                "InputDivXtick": time_interval,
+            }
+        )
         return OVERSEAS_CHART_MINUTE, {"In": base_in}
     elif period == "day":
         base_in["InputDate1"] = start_date

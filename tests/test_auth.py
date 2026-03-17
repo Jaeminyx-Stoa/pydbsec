@@ -1,0 +1,102 @@
+"""Tests for OAuth2 token management."""
+
+from datetime import datetime, timedelta
+
+import pytest
+
+from pydbsec.auth import TokenManager
+from pydbsec.exceptions import TokenError
+
+
+class TestTokenManager:
+    def test_init_without_token(self):
+        tm = TokenManager("key", "secret")
+        assert tm._token is None
+        assert tm._is_valid() is False
+
+    def test_init_with_valid_token(self):
+        tm = TokenManager(
+            "key",
+            "secret",
+            token="test_token",
+            token_type="Bearer",
+            expires_at=datetime.now() + timedelta(hours=1),
+        )
+        assert tm._is_valid() is True
+        assert tm.token == "test_token"
+        assert tm.authorization == "Bearer test_token"
+
+    def test_init_with_expired_token(self):
+        tm = TokenManager(
+            "key",
+            "secret",
+            token="expired_token",
+            token_type="Bearer",
+            expires_at=datetime.now() - timedelta(hours=1),
+        )
+        assert tm._is_valid() is False
+
+    def test_token_expiring_soon(self):
+        """Token with less than 10 minutes remaining should be invalid."""
+        tm = TokenManager(
+            "key",
+            "secret",
+            token="expiring_token",
+            token_type="Bearer",
+            expires_at=datetime.now() + timedelta(minutes=5),
+        )
+        assert tm._is_valid() is False
+
+    def test_token_request_success(self, httpx_mock):
+        httpx_mock.add_response(
+            url="https://openapi.dbsec.co.kr:8443/oauth2/token",
+            method="POST",
+            json={
+                "access_token": "new_token_123",
+                "expires_in": 86400,
+                "token_type": "Bearer",
+            },
+        )
+        tm = TokenManager("test_key", "test_secret")
+        token = tm.token
+        assert token == "new_token_123"
+        assert tm.token_type == "Bearer"
+        assert tm.expires_at is not None
+
+    def test_token_request_failure(self, httpx_mock, monkeypatch):
+        # Patch retry wait to speed up test
+        monkeypatch.setattr("pydbsec.auth._RETRY_WAIT_SECONDS", 0)
+        # Register 3 responses (one per retry attempt)
+        for _ in range(3):
+            httpx_mock.add_response(
+                url="https://openapi.dbsec.co.kr:8443/oauth2/token",
+                method="POST",
+                status_code=401,
+                json={"error": "invalid_client", "error_description": "Invalid appkey"},
+            )
+        tm = TokenManager("bad_key", "bad_secret")
+        with pytest.raises(TokenError) as exc_info:
+            _ = tm.token
+        assert exc_info.value.status_code == 401
+
+    def test_revoke_token(self, httpx_mock):
+        httpx_mock.add_response(
+            url="https://openapi.dbsec.co.kr:8443/oauth2/revoke",
+            method="POST",
+            json={"code": 200, "message": "success"},
+        )
+        tm = TokenManager(
+            "key",
+            "secret",
+            token="token_to_revoke",
+            token_type="Bearer",
+            expires_at=datetime.now() + timedelta(hours=1),
+        )
+        result = tm.revoke()
+        assert result["code"] == 200
+        assert tm._token is None
+
+    def test_revoke_no_token(self):
+        tm = TokenManager("key", "secret")
+        result = tm.revoke()
+        assert result["code"] == 400

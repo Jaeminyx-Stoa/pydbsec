@@ -57,7 +57,9 @@ class DomesticAPI:
             loan_date: "00000000"=normal order (default)
             order_condition: "0"=none (default)
         """
-        data = _build_domestic_order("2", stock_code, quantity, price, price_type, credit_type, loan_date, order_condition)
+        data = _build_domestic_order(
+            "2", stock_code, quantity, price, price_type, credit_type, loan_date, order_condition
+        )
         result = self._http.request(DOMESTIC_ORDER, data, paginate=False)
         return OrderResult.from_api(result)  # type: ignore[arg-type]
 
@@ -73,7 +75,9 @@ class DomesticAPI:
         order_condition: str = "0",
     ) -> OrderResult:
         """Place a sell order."""
-        data = _build_domestic_order("1", stock_code, quantity, price, price_type, credit_type, loan_date, order_condition)
+        data = _build_domestic_order(
+            "1", stock_code, quantity, price, price_type, credit_type, loan_date, order_condition
+        )
         result = self._http.request(DOMESTIC_ORDER, data, paginate=False)
         return OrderResult.from_api(result)  # type: ignore[arg-type]
 
@@ -141,7 +145,9 @@ class DomesticAPI:
         }
         return self._http.request(DOMESTIC_TRANSACTION_HISTORY, data)
 
-    def trading_history(self, start_date: str, end_date: str, *, query_type: str = "0") -> dict[str, Any] | list[dict[str, Any]]:
+    def trading_history(
+        self, start_date: str, end_date: str, *, query_type: str = "0"
+    ) -> dict[str, Any] | list[dict[str, Any]]:
         """Get trading history for a date range.
 
         Args:
@@ -210,7 +216,9 @@ class DomesticAPI:
             market: Market code
             adjust_price: "0"=adjusted (default), "1"=unadjusted
         """
-        endpoint, data = _build_domestic_chart(stock_code, period, start_date, end_date, time_interval, market, adjust_price)
+        endpoint, data = _build_domestic_chart(
+            stock_code, period, start_date, end_date, time_interval, market, adjust_price
+        )
         return self._http.request(endpoint, data)
 
 
@@ -231,7 +239,9 @@ class AsyncDomesticAPI:
         loan_date: str = "00000000",
         order_condition: str = "0",
     ) -> OrderResult:
-        data = _build_domestic_order("2", stock_code, quantity, price, price_type, credit_type, loan_date, order_condition)
+        data = _build_domestic_order(
+            "2", stock_code, quantity, price, price_type, credit_type, loan_date, order_condition
+        )
         result = await self._http.request(DOMESTIC_ORDER, data, paginate=False)
         return OrderResult.from_api(result)  # type: ignore[arg-type]
 
@@ -246,7 +256,9 @@ class AsyncDomesticAPI:
         loan_date: str = "00000000",
         order_condition: str = "0",
     ) -> OrderResult:
-        data = _build_domestic_order("1", stock_code, quantity, price, price_type, credit_type, loan_date, order_condition)
+        data = _build_domestic_order(
+            "1", stock_code, quantity, price, price_type, credit_type, loan_date, order_condition
+        )
         result = await self._http.request(DOMESTIC_ORDER, data, paginate=False)
         return OrderResult.from_api(result)  # type: ignore[arg-type]
 
@@ -285,7 +297,9 @@ class AsyncDomesticAPI:
         }
         return await self._http.request(DOMESTIC_TRANSACTION_HISTORY, data)
 
-    async def trading_history(self, start_date: str, end_date: str, *, query_type: str = "0") -> dict[str, Any] | list[dict[str, Any]]:
+    async def trading_history(
+        self, start_date: str, end_date: str, *, query_type: str = "0"
+    ) -> dict[str, Any] | list[dict[str, Any]]:
         data = {"In": {"QryTp": query_type, "QrySrtDt": start_date, "QryEndDt": end_date, "SrtNo": 0, "IsuNo": ""}}
         return await self._http.request(DOMESTIC_TRADING_HISTORY, data)
 
@@ -318,7 +332,9 @@ class AsyncDomesticAPI:
         market: str = "UJ",
         adjust_price: str = "0",
     ) -> dict[str, Any] | list[dict[str, Any]]:
-        endpoint, data = _build_domestic_chart(stock_code, period, start_date, end_date, time_interval, market, adjust_price)
+        endpoint, data = _build_domestic_chart(
+            stock_code, period, start_date, end_date, time_interval, market, adjust_price
+        )
         return await self._http.request(endpoint, data)
 
 
@@ -326,8 +342,14 @@ class AsyncDomesticAPI:
 
 
 def _build_domestic_order(
-    side: str, stock_code: str, quantity: int, price: float,
-    price_type: str, credit_type: str, loan_date: str, order_condition: str,
+    side: str,
+    stock_code: str,
+    quantity: int,
+    price: float,
+    price_type: str,
+    credit_type: str,
+    loan_date: str,
+    order_condition: str,
 ) -> dict[str, Any]:
     return {
         "In": {
@@ -345,8 +367,13 @@ def _build_domestic_order(
 
 
 def _build_domestic_chart(
-    stock_code: str, period: str, start_date: str, end_date: str,
-    time_interval: str, market: str, adjust_price: str,
+    stock_code: str,
+    period: str,
+    start_date: str,
+    end_date: str,
+    time_interval: str,
+    market: str,
+    adjust_price: str,
 ) -> tuple[str, dict[str, Any]]:
     base_in: dict[str, Any] = {
         "InputCondMrktDivCode": market,
