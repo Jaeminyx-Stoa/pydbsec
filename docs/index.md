@@ -29,12 +29,10 @@ hide:
 <p class="subtitle">DB증권 OpenAPI Python 래퍼<br>3줄이면 잔고 조회, 5줄이면 자동매매</p>
 
 <div class="badges">
-
-[![PyPI](https://img.shields.io/pypi/v/pydbsec.svg)](https://pypi.org/project/pydbsec/)
-[![Python](https://img.shields.io/pypi/pyversions/pydbsec.svg)](https://pypi.org/project/pydbsec/)
-[![CI](https://github.com/STOA-company/pydbsec/actions/workflows/ci.yml/badge.svg)](https://github.com/STOA-company/pydbsec/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
+  <a href="https://pypi.org/project/pydbsec/"><img src="https://img.shields.io/pypi/v/pydbsec.svg" alt="PyPI"></a>
+  <a href="https://pypi.org/project/pydbsec/"><img src="https://img.shields.io/pypi/pyversions/pydbsec.svg" alt="Python"></a>
+  <a href="https://github.com/STOA-company/pydbsec/actions"><img src="https://github.com/STOA-company/pydbsec/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT"></a>
 </div>
 
 ```python
