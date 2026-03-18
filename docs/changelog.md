@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-03-18
+
+### Added
+
+- **MCP Helper Functions** — Anthropic API 연동, MCP 클라이언트, 응답 파싱
+  - `get_anthropic_tools()` — Claude API tool 정의 생성
+  - `execute_tool()` — agentic loop에서 tool 로컬 실행
+  - `DBSecMCPClient` — typed async MCP 클라이언트
+  - `parse_stock_price()`, `parse_balance()`, `parse_order_result()`, `parse_order_book()` — 응답 파싱
+- **npm wrapper** — `npx pydbsec-mcp`로 zero-config MCP 서버 실행
+- **Documentation** — 제품 소개 랜딩 페이지, MCP 가이드, CLI/WebSocket/Rate Limiting 문서
+- **STOA Company 브랜딩** — docs footer, 히어로 섹션
+
+### Fixed
+
+- Badge 렌더링 (마크다운 → HTML img 태그)
+
+[0.5.0]: https://github.com/STOA-company/pydbsec/compare/v0.4.0...v0.5.0
+
 ## [0.4.0] - 2026-03-17
 
 ### Added
