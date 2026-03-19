@@ -47,8 +47,17 @@ OVERSEAS_CHART_DAY = "/api/v1/quote/overseas-stock/chart/day"
 OVERSEAS_CHART_WEEK = "/api/v1/quote/overseas-stock/chart/week"
 OVERSEAS_CHART_MONTH = "/api/v1/quote/overseas-stock/chart/month"
 
-# ── Futures (선물옵션) endpoints ──
+# ── Futures/Options (선물옵션) Trading endpoints ──
 FUTURES_BALANCE = "/api/v1/trading/kr-futureoption/inquiry/balance"
+
+# ── Futures/Options (선물옵션) Quote endpoints ──
+FUTURES_OPTION_TICKER = "/api/v1/quote/kr-futureoption/inquiry/option-ticker"
+FUTURES_FUTURE_TICKER = "/api/v1/quote/kr-futureoption/inquiry/future-ticker"
+FUTURES_OPTION_PRICE = "/api/v1/quote/kr-futureoption/inquiry/price"
+FUTURES_OPTION_ORDERBOOK = "/api/v1/quote/kr-futureoption/inquiry/orderbook"
+FUTURES_OPTION_DAILY_PRICE = "/api/v1/quote/kr-futureoption/inquiry/daily-price"
+FUTURES_OPTION_HOUR_PRICE = "/api/v1/quote/kr-futureoption/inquiry/hour-price"
+FUTURES_OPTION_BOARD = "/api/v1/quote/kr-futureoption/inquiry/option-board"
 
 # ── Market codes ──
 # Domestic market codes (시세 조회)
@@ -68,6 +77,12 @@ MARKET_AMEX = "FA"
 MARKET_NYSE_TICKER = "NY"
 MARKET_NASDAQ_TICKER = "NA"
 MARKET_AMEX_TICKER = "AM"
+
+# Futures/Options market codes (선물옵션 시세 조회)
+MARKET_FUTURES = "FU"  # 선물
+MARKET_OPTIONS_MONTHLY = "OF"  # 옵션(월물)
+MARKET_OPTIONS_WEEKLY = "WO"  # 위클리 옵션 (코스피/코스닥 위클리T)
+MARKET_OPTIONS_WEEKLY_OW = "OW"  # 위클리 옵션 (별도)
 
 # ── Error codes ──
 RSP_SUCCESS = "00000"

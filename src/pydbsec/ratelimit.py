@@ -24,8 +24,16 @@ RATE_LIMITS: dict[str, int] = {
     "/api/v1/trading/overseas-stock/inquiry/balance-margin": 2,
     "/api/v1/trading/overseas-stock/inquiry/deposit-detail": 1,
     "/api/v1/trading/overseas-stock/inquiry/able-orderqty": 2,
-    # Trading — 선물
+    # Trading — 선물옵션
     "/api/v1/trading/kr-futureoption/inquiry/balance": 2,
+    # Quote — 선물옵션
+    "/api/v1/quote/kr-futureoption/inquiry/option-ticker": 2,
+    "/api/v1/quote/kr-futureoption/inquiry/future-ticker": 2,
+    "/api/v1/quote/kr-futureoption/inquiry/price": 2,
+    "/api/v1/quote/kr-futureoption/inquiry/orderbook": 2,
+    "/api/v1/quote/kr-futureoption/inquiry/daily-price": 2,
+    "/api/v1/quote/kr-futureoption/inquiry/hour-price": 2,
+    "/api/v1/quote/kr-futureoption/inquiry/option-board": 2,
     # Quote — 국내
     "/api/v1/quote/kr-stock/inquiry/stock-ticker": 2,
     "/api/v1/quote/kr-stock/inquiry/price": 2,
