@@ -18,3 +18,6 @@ venv/
 # Reference project (not part of this library)
 quantus-fastapi/
 site/
+
+# Git worktrees
+.worktrees/
