@@ -61,10 +61,10 @@ pydbsec = "pydbsec.cli:main"
 pydbsec-mcp = "pydbsec.mcp.server:run_server"
 
 [project.urls]
-Homepage = "https://github.com/STOA-company/pydbsec"
-Documentation = "https://stoa-company.github.io/pydbsec"
-Repository = "https://github.com/STOA-company/pydbsec"
-Issues = "https://github.com/STOA-company/pydbsec/issues"
+Homepage = "https://github.com/Jaeminyx-Stoa/pydbsec"
+Documentation = "https://jaeminyx-stoa.github.io/pydbsec"
+Repository = "https://github.com/Jaeminyx-Stoa/pydbsec"
+Issues = "https://github.com/Jaeminyx-Stoa/pydbsec/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pydbsec"]

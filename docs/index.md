@@ -24,14 +24,14 @@ hide:
 <div class="hero" markdown>
 
 ## pydbsec
-<p class="by-stoa">by <a href="https://github.com/STOA-company">STOA Company</a> — Makers of <a href="https://quantus.kr">Quantus</a></p>
+<p class="by-stoa">by <a href="https://github.com/Jaeminyx-Stoa">Jaeminyx-Stoa</a> — Makers of <a href="https://quantus.kr">Quantus</a></p>
 
 <p class="subtitle">DB증권 OpenAPI Python 래퍼<br>3줄이면 잔고 조회, 5줄이면 자동매매</p>
 
 <div class="badges">
   <a href="https://pypi.org/project/pydbsec/"><img src="https://img.shields.io/pypi/v/pydbsec.svg" alt="PyPI"></a>
   <a href="https://pypi.org/project/pydbsec/"><img src="https://img.shields.io/pypi/pyversions/pydbsec.svg" alt="Python"></a>
-  <a href="https://github.com/STOA-company/pydbsec/actions"><img src="https://github.com/STOA-company/pydbsec/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/Jaeminyx-Stoa/pydbsec/actions"><img src="https://github.com/Jaeminyx-Stoa/pydbsec/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT"></a>
 </div>
 
@@ -44,7 +44,7 @@ print(client.domestic.price("005930").current_price)  # 삼성전자 현재가
 
 <div class="buttons">
 <a href="installation/" class="primary">시작하기</a>
-<a href="https://github.com/STOA-company/pydbsec" class="secondary">GitHub</a>
+<a href="https://github.com/Jaeminyx-Stoa/pydbsec" class="secondary">GitHub</a>
 </div>
 
 </div>

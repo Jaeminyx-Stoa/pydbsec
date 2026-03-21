@@ -1,8 +1,8 @@
 site_name: pydbsec
-site_url: https://stoa-company.github.io/pydbsec
+site_url: https://jaeminyx-stoa.github.io/pydbsec
 site_description: DB증권 OpenAPI Python 래퍼 — 3줄이면 잔고 조회, 5줄이면 자동매매
-repo_url: https://github.com/STOA-company/pydbsec
-repo_name: STOA-company/pydbsec
+repo_url: https://github.com/Jaeminyx-Stoa/pydbsec
+repo_name: Jaeminyx-Stoa/pydbsec
 
 theme:
   name: material
@@ -40,8 +40,8 @@ extra:
   generator: false
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/STOA-company
-      name: STOA Company on GitHub
+      link: https://github.com/Jaeminyx-Stoa
+      name: Jaeminyx-Stoa on GitHub
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/pydbsec/
       name: pydbsec on PyPI

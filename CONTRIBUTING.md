@@ -5,7 +5,7 @@ pydbsec에 기여해주셔서 감사합니다!
 ## Development Setup
 
 ```bash
-git clone https://github.com/STOA-company/pydbsec.git
+git clone https://github.com/Jaeminyx-Stoa/pydbsec.git
 cd pydbsec
 python -m venv .venv
 source .venv/bin/activate
@@ -50,7 +50,7 @@ mypy src/pydbsec/          # type check
 
 ## Reporting Bugs
 
-Use [GitHub Issues](https://github.com/STOA-company/pydbsec/issues) with the Bug Report template.
+Use [GitHub Issues](https://github.com/Jaeminyx-Stoa/pydbsec/issues) with the Bug Report template.
 
 ## License
 

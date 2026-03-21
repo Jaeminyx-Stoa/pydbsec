@@ -2,7 +2,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/pydbsec.svg)](https://pypi.org/project/pydbsec/)
 [![Python](https://img.shields.io/pypi/pyversions/pydbsec.svg)](https://pypi.org/project/pydbsec/)
-[![CI](https://github.com/STOA-company/pydbsec/actions/workflows/ci.yml/badge.svg)](https://github.com/STOA-company/pydbsec/actions)
+[![CI](https://github.com/Jaeminyx-Stoa/pydbsec/actions/workflows/ci.yml/badge.svg)](https://github.com/Jaeminyx-Stoa/pydbsec/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **DB증권 OpenAPI Python 래퍼** — 3줄이면 잔고 조회, 5줄이면 자동매매
@@ -281,7 +281,7 @@ DB증권 OpenAPI 사용을 위해:
 
 ## Documentation
 
-[https://stoa-company.github.io/pydbsec](https://stoa-company.github.io/pydbsec)
+[https://jaeminyx-stoa.github.io/pydbsec](https://jaeminyx-stoa.github.io/pydbsec)
 
 ## License
 

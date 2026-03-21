@@ -17,9 +17,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/STOA-company/pydbsec"
+    "url": "https://github.com/Jaeminyx-Stoa/pydbsec"
   },
-  "homepage": "https://github.com/STOA-company/pydbsec",
+  "homepage": "https://github.com/Jaeminyx-Stoa/pydbsec",
   "bin": {
     "pydbsec-mcp": "bin/cli.js"
   },

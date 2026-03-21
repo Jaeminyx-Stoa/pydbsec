@@ -63,9 +63,9 @@ The npm wrapper finds the best available Python runtime:
 
 ## Links
 
-- [GitHub](https://github.com/STOA-company/pydbsec)
+- [GitHub](https://github.com/Jaeminyx-Stoa/pydbsec)
 - [PyPI](https://pypi.org/project/pydbsec/)
-- [Documentation](https://stoa-company.github.io/pydbsec)
+- [Documentation](https://jaeminyx-stoa.github.io/pydbsec)
 
 ## License
 

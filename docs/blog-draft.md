@@ -44,7 +44,7 @@ print(result["Out"]["TrdPrc"])  # 현재가... 그런데 키가 뭐였더라?
 
 ## 해결: pydbsec — DB증권 전용 Python 래퍼
 
-[**pydbsec**](https://github.com/STOA-company/pydbsec)은 DB증권 OpenAPI를 감싼 Python 라이브러리입니다. 한국투자증권의 PyKIS처럼, DB증권도 Python 한 줄이면 됩니다.
+[**pydbsec**](https://github.com/Jaeminyx-Stoa/pydbsec)은 DB증권 OpenAPI를 감싼 Python 라이브러리입니다. 한국투자증권의 PyKIS처럼, DB증권도 Python 한 줄이면 됩니다.
 
 위의 30줄짜리 코드가 이렇게 바뀝니다:
 
@@ -166,8 +166,8 @@ with PyDBSec(app_key="...", app_secret="...") as client:
 pip install pydbsec
 ```
 
-GitHub: [https://github.com/STOA-company/pydbsec](https://github.com/STOA-company/pydbsec)
+GitHub: [https://github.com/Jaeminyx-Stoa/pydbsec](https://github.com/Jaeminyx-Stoa/pydbsec)
 
 DB증권으로 퀀트 전략을 돌리고 계신 분, 자동매매 봇을 만들고 계신 분이라면 한번 써보세요. Star를 눌러주시면 개발에 큰 힘이 됩니다.
 
-버그 리포트, 기능 제안, PR 모두 환영합니다. [Issues](https://github.com/STOA-company/pydbsec/issues)에 남겨주세요.
+버그 리포트, 기능 제안, PR 모두 환영합니다. [Issues](https://github.com/Jaeminyx-Stoa/pydbsec/issues)에 남겨주세요.

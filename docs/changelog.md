@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Badge 렌더링 (마크다운 → HTML img 태그)
 
-[0.5.0]: https://github.com/STOA-company/pydbsec/compare/v0.4.0...v0.5.0
+[0.5.0]: https://github.com/Jaeminyx-Stoa/pydbsec/compare/v0.4.0...v0.5.0
 
 ## [0.4.0] - 2026-03-17
 
@@ -33,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Tools: get_stock_price, get_balance, get_portfolio_summary, place_order, get_order_book, get_chart
   - stdio transport (Claude Desktop config에 추가하여 사용)
 
-[0.4.0]: https://github.com/STOA-company/pydbsec/compare/v0.3.0...v0.4.0
+[0.4.0]: https://github.com/Jaeminyx-Stoa/pydbsec/compare/v0.3.0...v0.4.0
 
 ## [0.3.0] - 2026-03-17
 
@@ -56,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `base_url` propagation to `TokenManager`
 - Async token refresh event loop blocking
 
-[0.3.0]: https://github.com/STOA-company/pydbsec/compare/v0.2.0...v0.3.0
+[0.3.0]: https://github.com/Jaeminyx-Stoa/pydbsec/compare/v0.2.0...v0.3.0
 
 ## [0.2.0] - 2026-03-17
 
@@ -82,7 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Return type simplified to `dict[str, Any]` (no more `dict | list[dict]` union)
 - Error codes extracted to constants (`ERROR_TOKEN_EXPIRED`, etc.)
 
-[0.2.0]: https://github.com/STOA-company/pydbsec/compare/v0.1.0...v0.2.0
+[0.2.0]: https://github.com/Jaeminyx-Stoa/pydbsec/compare/v0.1.0...v0.2.0
 
 ## [0.1.0] - 2026-03-17
 
@@ -102,4 +102,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub Actions CI (Python 3.10–3.13)
 - PyPI trusted publishing workflow
 
-[0.1.0]: https://github.com/STOA-company/pydbsec/releases/tag/v0.1.0
+[0.1.0]: https://github.com/Jaeminyx-Stoa/pydbsec/releases/tag/v0.1.0

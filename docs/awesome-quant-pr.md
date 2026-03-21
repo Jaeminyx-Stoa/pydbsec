@@ -24,7 +24,7 @@ Add the following line at the end of the "Trading & Backtesting" section
 (before the blank line preceding `### Risk Analysis`):
 
 ```markdown
-- [pydbsec](https://github.com/STOA-company/pydbsec) - Python wrapper for DB Securities (DB증권) OpenAPI with sync/async support.
+- [pydbsec](https://github.com/Jaeminyx-Stoa/pydbsec) - Python wrapper for DB Securities (DB증권) OpenAPI with sync/async support.
 ```
 
 ## Draft PR
@@ -40,7 +40,7 @@ Add pydbsec - Python wrapper for DB Securities OpenAPI
 ```
 ## Add pydbsec to Python > Trading & Backtesting
 
-[pydbsec](https://github.com/STOA-company/pydbsec) is a Python wrapper for
+[pydbsec](https://github.com/Jaeminyx-Stoa/pydbsec) is a Python wrapper for
 the DB Securities (DB증권) OpenAPI, a Korean brokerage.
 
 **Features:**
