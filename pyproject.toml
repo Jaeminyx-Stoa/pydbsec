@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pydbsec"
-version = "0.5.2"
+version = "1.0.0"
 description = "Python wrapper for DB Securities (DB증권) OpenAPI — Stock trading, balance, quotes, charts for Korean & US markets"
 readme = "README.md"
 license = "MIT"
@@ -21,7 +21,7 @@ keywords = [
     "pykis", "pykrx",
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: Financial and Insurance Industry",
     "License :: OSI Approved :: MIT License",

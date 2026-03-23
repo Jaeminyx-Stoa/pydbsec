@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-03-23
+
+### Added
+
+- **ChartData model** — fully typed OHLCV candle data via `ChartCandle` and `ChartData` Pydantic models
+- **Enhanced OrderBook model** — structured bid/ask levels via `OrderBookLevel`, 10-level price/volume parsing
+- **5 new exception types** — `RateLimitError`, `InvalidOrderError`, `InsufficientBalanceError`, `WebSocketError`, `ValidationError`
+- **Smart error classification** — HTTP client raises specific exceptions based on status code and `rsp_cd`
+- **WebSocket heartbeat** — periodic ping/pong to detect stale connections (`heartbeat_interval` parameter)
+- **WebSocket queue overflow protection** — bounded `asyncio.Queue` with configurable `queue_maxsize`
+- **Reconnection jitter** — exponential backoff with randomized jitter for WebSocket reconnects
+- **8 new example files** — real-time monitoring, stop-loss, portfolio summary, WebSocket orderbook, chart analysis, order management, futures/options, error handling
+
+### Changed
+
+- `chart()` methods now return `ChartData` instead of `dict[str, Any]` (use `.raw` for original dict)
+- `OrderBook.from_api()` now parses structured ask/bid levels (backward-compatible: `.raw` still accessible)
+- Input validation now raises `ValidationError` (subclass of both `PyDBSecError` and `ValueError`)
+- Development Status classifier upgraded to "5 - Production/Stable"
+
+[1.0.0]: https://github.com/Jaeminyx-Stoa/pydbsec/compare/v0.5.2...v1.0.0
+
 ## [0.5.2] - 2026-03-23
 
 ### Added

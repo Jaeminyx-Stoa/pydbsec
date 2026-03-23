@@ -2,7 +2,7 @@
 
 from pydbsec.models.balance import DomesticBalance, FuturesBalance, OverseasBalance
 from pydbsec.models.order import OrderResult
-from pydbsec.models.quote import StockPrice
+from pydbsec.models.quote import ChartCandle, ChartData, OrderBook, StockPrice
 
 
 class TestDomesticBalance:
@@ -122,3 +122,100 @@ class TestStockPrice:
         assert price.change == 1500
         assert price.change_rate == 2.13
         assert price.volume == 15000000
+
+
+class TestOrderBook:
+    def test_from_api_with_levels(self):
+        data = {
+            "Out": {
+                "AskPrc1": "72100",
+                "AskQty1": "500",
+                "AskPrc2": "72200",
+                "AskQty2": "300",
+                "BidPrc1": "71900",
+                "BidQty1": "800",
+                "BidPrc2": "71800",
+                "BidQty2": "400",
+                "TotAskQty": "800",
+                "TotBidQty": "1200",
+            }
+        }
+        ob = OrderBook.from_api(data)
+        assert len(ob.asks) == 2
+        assert ob.asks[0].price == 72100
+        assert ob.asks[0].volume == 500
+        assert len(ob.bids) == 2
+        assert ob.bids[0].price == 71900
+        assert ob.bids[0].volume == 800
+        assert ob.total_ask_volume == 800
+        assert ob.total_bid_volume == 1200
+
+    def test_from_api_empty(self):
+        data = {"Out": {}}
+        ob = OrderBook.from_api(data)
+        assert len(ob.asks) == 0
+        assert len(ob.bids) == 0
+        assert ob.total_ask_volume == 0
+
+    def test_raw_backward_compat(self):
+        data = {"Out": {"AskPrc1": "100"}}
+        ob = OrderBook.from_api(data)
+        assert ob.raw == data
+
+
+class TestChartCandle:
+    def test_from_api_domestic(self):
+        item = {
+            "TrdDd": "20260320", "Oprc": "71000", "Hprc": "72500",
+            "Lprc": "70500", "Clpr": "72000", "AcmlVol": "15000000",
+        }
+        candle = ChartCandle.from_api(item)
+        assert candle.date == "20260320"
+        assert candle.open == 71000
+        assert candle.high == 72500
+        assert candle.low == 70500
+        assert candle.close == 72000
+        assert candle.volume == 15000000
+
+    def test_from_api_overseas_keys(self):
+        item = {
+            "TrdDd": "20260320", "OpnPrc": "180.0", "HghPrc": "182.0",
+            "LowPrc": "179.0", "ClsPrc": "181.5", "TrdVol": "55000000",
+        }
+        candle = ChartCandle.from_api(item)
+        assert candle.open == 180.0
+        assert candle.close == 181.5
+        assert candle.volume == 55000000
+
+    def test_from_api_minute_chart(self):
+        item = {
+            "TrdDd": "20260320", "TrdTm": "100500", "Oprc": "71000",
+            "Hprc": "71500", "Lprc": "70900", "Clpr": "71200",
+        }
+        candle = ChartCandle.from_api(item)
+        assert candle.time == "100500"
+
+
+class TestChartData:
+    def test_from_api(self):
+        data = {
+            "Out": {},
+            "Out1": [
+                {"TrdDd": "20260320", "Oprc": "71000", "Hprc": "72500", "Lprc": "70500", "Clpr": "72000"},
+                {"TrdDd": "20260319", "Oprc": "70000", "Hprc": "71500", "Lprc": "69500", "Clpr": "71000"},
+            ],
+        }
+        chart = ChartData.from_api(data)
+        assert len(chart.candles) == 2
+        assert chart.candles[0].close == 72000
+        assert chart.candles[1].date == "20260319"
+
+    def test_from_api_empty(self):
+        data = {"Out": {}, "Out1": []}
+        chart = ChartData.from_api(data)
+        assert len(chart.candles) == 0
+
+    def test_raw_preserved(self):
+        data = {"Out": {"some": "data"}, "Out1": [{"TrdDd": "20260320", "Clpr": "72000"}]}
+        chart = ChartData.from_api(data)
+        assert chart.raw == data

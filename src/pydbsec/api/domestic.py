@@ -25,7 +25,7 @@ from ..constants import (
 from ..http import AsyncHTTPClient, HTTPClient
 from ..models.balance import DomesticBalance
 from ..models.order import OrderResult
-from ..models.quote import OrderBook, StockPrice
+from ..models.quote import ChartData, OrderBook, StockPrice
 
 
 class DomesticAPI:
@@ -212,7 +212,7 @@ class DomesticAPI:
         time_interval: str = "60",
         market: str = "UJ",
         adjust_price: str = "0",
-    ) -> dict[str, Any]:
+    ) -> ChartData:
         """Get chart data.
 
         Args:
@@ -227,7 +227,8 @@ class DomesticAPI:
         endpoint, data = _build_domestic_chart(
             stock_code, period, start_date, end_date, time_interval, market, adjust_price
         )
-        return self._http.request(endpoint, data)
+        result = self._http.request(endpoint, data)
+        return ChartData.from_api(result)
 
 
 class AsyncDomesticAPI:
@@ -346,11 +347,12 @@ class AsyncDomesticAPI:
         time_interval: str = "60",
         market: str = "UJ",
         adjust_price: str = "0",
-    ) -> dict[str, Any]:
+    ) -> ChartData:
         endpoint, data = _build_domestic_chart(
             stock_code, period, start_date, end_date, time_interval, market, adjust_price
         )
-        return await self._http.request(endpoint, data)
+        result = await self._http.request(endpoint, data)
+        return ChartData.from_api(result)
 
 
 # ── Helpers ──
@@ -423,4 +425,6 @@ def _build_domestic_chart(
         base_in["InputPeriodDivCode"] = "M"
         return DOMESTIC_CHART_MONTH, {"In": base_in}
     else:
-        raise ValueError(f"Invalid period: {period!r}. Must be 'minute', 'day', 'week', or 'month'.")
+        from ..exceptions import ValidationError
+
+        raise ValidationError(f"Invalid period: {period!r}. Must be 'minute', 'day', 'week', or 'month'.")

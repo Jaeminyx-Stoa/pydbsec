@@ -9,8 +9,8 @@ from typing import Any
 import httpx
 
 from .auth import TokenManager
-from .constants import BASE_URL, ERROR_TOKEN_EXPIRED
-from .exceptions import APIError
+from .constants import BALANCE_ERROR_CODES, BASE_URL, ERROR_TOKEN_EXPIRED, ORDER_ERROR_CODES
+from .exceptions import APIError, InsufficientBalanceError, InvalidOrderError, RateLimitError
 from .ratelimit import RateLimiter
 
 logger = logging.getLogger("pydbsec")
@@ -97,11 +97,12 @@ class HTTPClient:
         if response.status_code >= 400:
             body = _safe_json(response)
             rsp_cd = body.get("rsp_cd") if isinstance(body, dict) else None
-            raise APIError(
-                f"API request failed: {endpoint} (HTTP {response.status_code})",
+            raise _classify_error(
+                endpoint=endpoint,
                 status_code=response.status_code,
                 rsp_cd=rsp_cd,
                 response_body=body,
+                retry_after=response.headers.get("Retry-After"),
             )
 
         result: dict[str, Any] = response.json()
@@ -201,11 +202,12 @@ class AsyncHTTPClient:
         if response.status_code >= 400:
             body = _safe_json(response)
             rsp_cd = body.get("rsp_cd") if isinstance(body, dict) else None
-            raise APIError(
-                f"API request failed: {endpoint} (HTTP {response.status_code})",
+            raise _classify_error(
+                endpoint=endpoint,
                 status_code=response.status_code,
                 rsp_cd=rsp_cd,
                 response_body=body,
+                retry_after=response.headers.get("Retry-After"),
             )
 
         result: dict[str, Any] = response.json()
@@ -251,6 +253,28 @@ def _merge_page(new_page: dict[str, Any], accumulated: dict[str, Any] | None) ->
         else:
             merged[key] = value
     return merged
+
+
+def _classify_error(
+    *,
+    endpoint: str,
+    status_code: int,
+    rsp_cd: str | None,
+    response_body: dict[str, Any] | str | None,
+    retry_after: str | None = None,
+) -> APIError:
+    """Classify an API error into the most specific exception type."""
+    msg = f"API request failed: {endpoint} (HTTP {status_code})"
+    kwargs: dict[str, Any] = dict(status_code=status_code, rsp_cd=rsp_cd, response_body=response_body)
+
+    if status_code == 429:
+        ra = float(retry_after) if retry_after else None
+        return RateLimitError(msg, retry_after=ra, **kwargs)
+    if rsp_cd and rsp_cd in ORDER_ERROR_CODES:
+        return InvalidOrderError(msg, **kwargs)
+    if rsp_cd and rsp_cd in BALANCE_ERROR_CODES:
+        return InsufficientBalanceError(msg, **kwargs)
+    return APIError(msg, **kwargs)
 
 
 def _safe_json(response: httpx.Response) -> dict[str, Any] | str:

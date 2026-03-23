@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from pydbsec.auth import TokenManager
-from pydbsec.exceptions import APIError
+from pydbsec.exceptions import APIError, InsufficientBalanceError, InvalidOrderError, RateLimitError
 from pydbsec.http import HTTPClient
 
 
@@ -106,6 +106,50 @@ class TestHTTPClient:
         client = _make_client(httpx_mock)
         result = client.request("/api/v1/data", paginate=False)
         assert result["Out"]["ok"] is True
+
+    def test_rate_limit_error_on_429(self, httpx_mock):
+        """HTTP 429 should raise RateLimitError."""
+        httpx_mock.add_response(
+            url="https://openapi.dbsec.co.kr:8443/api/v1/limited",
+            method="POST",
+            status_code=429,
+            json={"rsp_cd": "IGW00429", "rsp_msg": "Too many requests"},
+            headers={"Retry-After": "5"},
+        )
+        client = _make_client(httpx_mock)
+        with pytest.raises(RateLimitError) as exc_info:
+            client.request("/api/v1/limited", paginate=False)
+        assert exc_info.value.status_code == 429
+        assert exc_info.value.retry_after == 5.0
+        # Should also be catchable as APIError
+        assert isinstance(exc_info.value, APIError)
+
+    def test_invalid_order_error(self, httpx_mock):
+        """Order error rsp_cd should raise InvalidOrderError."""
+        httpx_mock.add_response(
+            url="https://openapi.dbsec.co.kr:8443/api/v1/trading/kr-stock/order",
+            method="POST",
+            status_code=400,
+            json={"rsp_cd": "EGW00001", "rsp_msg": "주문 오류"},
+        )
+        client = _make_client(httpx_mock)
+        with pytest.raises(InvalidOrderError) as exc_info:
+            client.request("/api/v1/trading/kr-stock/order", paginate=False)
+        assert exc_info.value.rsp_cd == "EGW00001"
+        assert isinstance(exc_info.value, APIError)
+
+    def test_insufficient_balance_error(self, httpx_mock):
+        """Balance error rsp_cd should raise InsufficientBalanceError."""
+        httpx_mock.add_response(
+            url="https://openapi.dbsec.co.kr:8443/api/v1/trading/kr-stock/order",
+            method="POST",
+            status_code=400,
+            json={"rsp_cd": "EGW00101", "rsp_msg": "잔고 부족"},
+        )
+        client = _make_client(httpx_mock)
+        with pytest.raises(InsufficientBalanceError) as exc_info:
+            client.request("/api/v1/trading/kr-stock/order", paginate=False)
+        assert isinstance(exc_info.value, APIError)
 
     def test_connection_pool_close(self, httpx_mock):
         """close() should not raise."""

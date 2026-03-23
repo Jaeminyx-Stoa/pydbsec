@@ -7,7 +7,7 @@ import pytest
 from pydbsec import PyDBSec
 from pydbsec.models.balance import DomesticBalance, FuturesBalance, OverseasBalance
 from pydbsec.models.order import OrderResult
-from pydbsec.models.quote import OrderBook, StockPrice
+from pydbsec.models.quote import ChartData, OrderBook, StockPrice
 
 
 def _make_client() -> PyDBSec:
@@ -220,8 +220,11 @@ class TestPyDBSec:
         )
         client = _make_client()
         result = client.domestic.chart("005930", period="day", start_date="20260319", end_date="20260320")
-        assert "Out1" in result
-        assert len(result["Out1"]) == 2
+        assert isinstance(result, ChartData)
+        assert len(result.candles) == 2
+        assert result.candles[0].close == 72000
+        assert result.candles[0].date == "20260320"
+        assert result.raw["Out1"] is not None
 
     def test_domestic_order_book(self, httpx_mock):
         httpx_mock.add_response(

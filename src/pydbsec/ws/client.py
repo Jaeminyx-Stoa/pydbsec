@@ -5,10 +5,12 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import random
 from collections.abc import AsyncIterator
 from typing import Any
 
 from ..auth import TokenManager
+from ..exceptions import WebSocketError
 from .constants import WS_URL
 from .models import WSMessage
 
@@ -39,17 +41,21 @@ class DBSecWebSocket:
         reconnect: bool = True,
         reconnect_delay: float = 3.0,
         max_reconnect_attempts: int = 10,
+        heartbeat_interval: float = 30.0,
+        queue_maxsize: int = 10000,
     ):
         self._token_manager = token_manager
         self._ws_url = ws_url
         self._reconnect = reconnect
         self._reconnect_delay = reconnect_delay
         self._max_reconnect_attempts = max_reconnect_attempts
+        self._heartbeat_interval = heartbeat_interval
 
         self._ws: Any = None  # websockets.WebSocketClientProtocol
         self._subscriptions: set[tuple[str, str]] = set()  # (stock_code, tr_code)
         self._connected = False
-        self._recv_queue: asyncio.Queue[WSMessage] = asyncio.Queue()
+        self._recv_queue: asyncio.Queue[WSMessage] = asyncio.Queue(maxsize=queue_maxsize)
+        self._heartbeat_task: asyncio.Task[None] | None = None
 
     @property
     def connected(self) -> bool:
@@ -80,6 +86,10 @@ class DBSecWebSocket:
         self._connected = True
         logger.info("WebSocket connected")
 
+        # Start heartbeat
+        if self._heartbeat_task is None or self._heartbeat_task.done():
+            self._heartbeat_task = asyncio.create_task(self._heartbeat_loop())
+
         # Re-subscribe if reconnecting
         for stock_code, tr_code in self._subscriptions:
             await self._send_subscribe(stock_code, tr_code)
@@ -87,6 +97,14 @@ class DBSecWebSocket:
     async def disconnect(self) -> None:
         """Close WebSocket connection."""
         self._connected = False
+        # Stop heartbeat
+        if self._heartbeat_task and not self._heartbeat_task.done():
+            self._heartbeat_task.cancel()
+            try:
+                await self._heartbeat_task
+            except asyncio.CancelledError:
+                pass
+            self._heartbeat_task = None
         if self._ws:
             await self._ws.close()
             self._ws = None
@@ -158,18 +176,38 @@ class DBSecWebSocket:
                 else:
                     raise
 
+    async def _heartbeat_loop(self) -> None:
+        """Periodically send ping frames to keep connection alive."""
+        while self._connected:
+            try:
+                await asyncio.sleep(self._heartbeat_interval)
+                if self._ws and self._connected:
+                    await self._ws.ping()
+                    logger.debug("Heartbeat ping sent")
+            except asyncio.CancelledError:
+                raise
+            except Exception as e:
+                logger.warning("Heartbeat failed: %s", e)
+                if self._reconnect and self._connected:
+                    self._heartbeat_task = None  # allow connect() to start a new one
+                    await self._try_reconnect()
+                break
+
     async def _try_reconnect(self) -> None:
         self._connected = False
         for attempt in range(1, self._max_reconnect_attempts + 1):
             try:
                 logger.info("Reconnect attempt %d/%d", attempt, self._max_reconnect_attempts)
-                await asyncio.sleep(self._reconnect_delay * attempt)
+                base_delay = self._reconnect_delay * (2 ** (attempt - 1))
+                jitter = random.uniform(0, base_delay * 0.5)
+                delay = min(base_delay + jitter, 120.0)
+                await asyncio.sleep(delay)
                 await self.connect()
                 return
             except Exception as e:
                 logger.warning("Reconnect attempt %d failed: %s", attempt, e)
 
-        raise ConnectionError(f"Failed to reconnect after {self._max_reconnect_attempts} attempts")
+        raise WebSocketError(f"Failed to reconnect after {self._max_reconnect_attempts} attempts")
 
     def __aiter__(self) -> AsyncIterator[WSMessage]:
         return self
@@ -177,7 +215,7 @@ class DBSecWebSocket:
     async def __anext__(self) -> WSMessage:
         try:
             return await self.recv()
-        except (ConnectionError, RuntimeError):
+        except (WebSocketError, RuntimeError):
             raise StopAsyncIteration
 
     async def __aenter__(self) -> DBSecWebSocket:

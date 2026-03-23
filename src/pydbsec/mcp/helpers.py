@@ -353,4 +353,4 @@ def parse_order_result(data: dict[str, Any] | str) -> OrderResult:
 def parse_order_book(data: dict[str, Any] | str) -> OrderBook:
     """Parse MCP tool result into an OrderBook model."""
     d = _ensure_dict(data)
-    return OrderBook(raw=d)
+    return OrderBook.from_api(d)

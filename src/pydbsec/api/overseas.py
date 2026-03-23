@@ -23,7 +23,7 @@ from ..constants import (
 from ..http import AsyncHTTPClient, HTTPClient
 from ..models.balance import OverseasBalance
 from ..models.order import OrderResult
-from ..models.quote import OrderBook, StockPrice
+from ..models.quote import ChartData, OrderBook, StockPrice
 
 
 class OverseasAPI:
@@ -217,7 +217,7 @@ class OverseasAPI:
         time_interval: str = "60",
         market: str = MARKET_NYSE,
         adjust_price: str = "1",
-    ) -> dict[str, Any]:
+    ) -> ChartData:
         """Get overseas chart data.
 
         Args:
@@ -232,7 +232,8 @@ class OverseasAPI:
         endpoint, data = _build_overseas_chart(
             stock_code, period, start_date, end_date, time_interval, market, adjust_price
         )
-        return self._http.request(endpoint, data)
+        result = self._http.request(endpoint, data)
+        return ChartData.from_api(result)
 
 
 class AsyncOverseasAPI:
@@ -345,11 +346,12 @@ class AsyncOverseasAPI:
         time_interval: str = "60",
         market: str = MARKET_NYSE,
         adjust_price: str = "1",
-    ) -> dict[str, Any]:
+    ) -> ChartData:
         endpoint, data = _build_overseas_chart(
             stock_code, period, start_date, end_date, time_interval, market, adjust_price
         )
-        return await self._http.request(endpoint, data)
+        result = await self._http.request(endpoint, data)
+        return ChartData.from_api(result)
 
 
 # ── Helpers ──
@@ -424,4 +426,6 @@ def _build_overseas_chart(
         base_in.update({"InputDate1": start_date, "InputDate2": end_date, "InputPeriodDivCode": "M"})
         return OVERSEAS_CHART_MONTH, {"In": base_in}
     else:
-        raise ValueError(f"Invalid period: {period!r}. Must be 'minute', 'day', 'week', or 'month'.")
+        from ..exceptions import ValidationError
+
+        raise ValidationError(f"Invalid period: {period!r}. Must be 'minute', 'day', 'week', or 'month'.")

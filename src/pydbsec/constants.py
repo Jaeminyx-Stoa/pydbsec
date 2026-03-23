@@ -89,3 +89,18 @@ RSP_SUCCESS = "00000"
 ERROR_INVALID_APPKEY = "IGW00103"
 ERROR_INVALID_APPSECRET = "IGW00105"
 ERROR_TOKEN_EXPIRED = "IGW00121"
+
+# Error code groups for exception classification
+ORDER_ERROR_CODES: frozenset[str] = frozenset({
+    "EGW00001",  # Order validation failure
+    "EGW00002",  # Invalid order parameters
+    "EGW00003",  # Market closed
+    "EGW00004",  # Order price out of range
+    "EGW00005",  # Order quantity exceeds limit
+})
+
+BALANCE_ERROR_CODES: frozenset[str] = frozenset({
+    "EGW00101",  # Insufficient balance
+    "EGW00102",  # Insufficient margin
+    "EGW00103",  # Withdrawal limit exceeded
+})

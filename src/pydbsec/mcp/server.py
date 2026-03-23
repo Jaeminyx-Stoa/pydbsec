@@ -263,7 +263,7 @@ def get_chart(
             data = client.domestic.chart(
                 stock_code, period=period, start_date=start_date, end_date=end_date, market=mkt
             )
-        return json.dumps(data, ensure_ascii=False)
+        return json.dumps(data.raw, ensure_ascii=False)
     finally:
         client._http.close()
 

@@ -14,7 +14,17 @@ Usage::
 """
 
 from .client import AsyncPyDBSec, PyDBSec
-from .exceptions import APIError, PyDBSecError, TokenError, TokenExpiredError
+from .exceptions import (
+    APIError,
+    InsufficientBalanceError,
+    InvalidOrderError,
+    PyDBSecError,
+    RateLimitError,
+    TokenError,
+    TokenExpiredError,
+    ValidationError,
+    WebSocketError,
+)
 
 __all__ = [
     "PyDBSec",
@@ -23,6 +33,11 @@ __all__ = [
     "TokenError",
     "TokenExpiredError",
     "APIError",
+    "RateLimitError",
+    "InvalidOrderError",
+    "InsufficientBalanceError",
+    "WebSocketError",
+    "ValidationError",
 ]
 
-__version__ = "0.5.2"
+__version__ = "1.0.0"
