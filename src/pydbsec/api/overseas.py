@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from .._validation import validate_date, validate_price, validate_quantity, validate_stock_code
 from ..constants import (
     MARKET_NYSE,
     OVERSEAS_ABLE_ORDER_QTY,
@@ -125,6 +126,8 @@ class OverseasAPI:
             side: "1"=sell, "2"=buy (default)
             currency_type: "1"=KRW, "2"=foreign (default)
         """
+        validate_stock_code(stock_code)
+        validate_price(price)
         data = {
             "In": {"TrxTpCode": side, "AstkIsuNo": stock_code, "AstkOrdPrc": price, "WonFcurrTpCode": currency_type}
         }
@@ -154,6 +157,8 @@ class OverseasAPI:
             execution_status: "0"=all, "1"=filled, "2"=unfilled
             currency_type: "1"=KRW, "2"=foreign (default)
         """
+        validate_date(start_date, label="start_date")
+        validate_date(end_date, label="end_date")
         data = {
             "In": {
                 "QrySrtDt": start_date,
@@ -179,12 +184,14 @@ class OverseasAPI:
             stock_code: Ticker symbol (e.g., "AAPL")
             market: "FY"=NYSE (default), "FN"=NASDAQ, "FA"=AMEX
         """
+        validate_stock_code(stock_code)
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": stock_code}}
         result = self._http.request(OVERSEAS_STOCK_PRICE, data, paginate=False)
         return StockPrice.from_api(result)
 
     def order_book(self, stock_code: str, *, market: str = MARKET_NYSE) -> OrderBook:
         """Get overseas order book."""
+        validate_stock_code(stock_code)
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": stock_code}}
         result = self._http.request(OVERSEAS_ORDER_BOOK, data, paginate=False)
         return OrderBook.from_api(result)
@@ -274,6 +281,8 @@ class AsyncOverseasAPI:
     async def orderable_quantity(
         self, stock_code: str, price: float, *, side: str = "2", currency_type: str = "2"
     ) -> dict[str, Any]:
+        validate_stock_code(stock_code)
+        validate_price(price)
         data = {
             "In": {"TrxTpCode": side, "AstkIsuNo": stock_code, "AstkOrdPrc": price, "WonFcurrTpCode": currency_type}
         }
@@ -292,6 +301,8 @@ class AsyncOverseasAPI:
         query_type: str = "0",
         currency_type: str = "2",
     ) -> dict[str, Any]:
+        validate_date(start_date, label="start_date")
+        validate_date(end_date, label="end_date")
         data = {
             "In": {
                 "QrySrtDt": start_date,
@@ -309,11 +320,13 @@ class AsyncOverseasAPI:
         return await self._http.request(OVERSEAS_TRANSACTION_HISTORY, data)
 
     async def price(self, stock_code: str, *, market: str = MARKET_NYSE) -> StockPrice:
+        validate_stock_code(stock_code)
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": stock_code}}
         result = await self._http.request(OVERSEAS_STOCK_PRICE, data, paginate=False)
         return StockPrice.from_api(result)
 
     async def order_book(self, stock_code: str, *, market: str = MARKET_NYSE) -> OrderBook:
+        validate_stock_code(stock_code)
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": stock_code}}
         result = await self._http.request(OVERSEAS_ORDER_BOOK, data, paginate=False)
         return OrderBook.from_api(result)
@@ -352,6 +365,9 @@ def _build_overseas_order(
     trade_type: str,
     original_order_no: int,
 ) -> dict[str, Any]:
+    validate_stock_code(stock_code)
+    validate_quantity(quantity)
+    validate_price(price)
     return {
         "In": {
             "AstkIsuNo": stock_code,
@@ -375,6 +391,11 @@ def _build_overseas_chart(
     market: str,
     adjust_price: str,
 ) -> tuple[str, dict[str, Any]]:
+    validate_stock_code(stock_code)
+    if start_date:
+        validate_date(start_date, label="start_date")
+    if end_date:
+        validate_date(end_date, label="end_date")
     base_in: dict[str, Any] = {
         "InputCondMrktDivCode": market,
         "InputOrgAdjPrc": adjust_price,

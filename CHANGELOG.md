@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.2] - 2026-03-23
+
+### Added
+
+- Input validation for all API methods — `stock_code`, `quantity`, `price`, `date` parameters are validated before sending requests
+- Async client tests (`AsyncPyDBSec` — balance, price, buy, portfolio_summary, context manager)
+- Sell, cancel, chart, order_book API tests for domestic and overseas
+- Validation test suite (stock_code, quantity, price, date edge cases)
+
+### Fixed
+
+- `__version__` mismatch between `__init__.py` and `pyproject.toml`
+
+[0.5.2]: https://github.com/Jaeminyx-Stoa/pydbsec/compare/v0.5.1...v0.5.2
+
 ## [0.5.1] - 2026-03-21
 
 ### Changed

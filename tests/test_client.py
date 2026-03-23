@@ -2,10 +2,12 @@
 
 from datetime import datetime, timedelta
 
+import pytest
+
 from pydbsec import PyDBSec
 from pydbsec.models.balance import DomesticBalance, FuturesBalance, OverseasBalance
 from pydbsec.models.order import OrderResult
-from pydbsec.models.quote import StockPrice
+from pydbsec.models.quote import OrderBook, StockPrice
 
 
 def _make_client() -> PyDBSec:
@@ -179,3 +181,90 @@ class TestPyDBSec:
         assert client.token == "test_token"
         assert client.token_type == "Bearer"
         assert client.expires_at is not None
+
+    def test_domestic_sell(self, httpx_mock):
+        httpx_mock.add_response(
+            url="https://openapi.dbsec.co.kr:8443/api/v1/trading/kr-stock/order",
+            method="POST",
+            json={"rsp_cd": "00000", "rsp_msg": "정상처리", "Out": {"OrdNo": 88888}},
+        )
+        client = _make_client()
+        result = client.domestic.sell("005930", quantity=10, price=72000)
+        assert isinstance(result, OrderResult)
+        assert result.success is True
+        assert result.order_no == 88888
+
+    def test_domestic_cancel(self, httpx_mock):
+        httpx_mock.add_response(
+            url="https://openapi.dbsec.co.kr:8443/api/v1/trading/kr-stock/order-cancel",
+            method="POST",
+            json={"rsp_cd": "00000", "rsp_msg": "정상처리", "Out": {"OrdNo": 77777}},
+        )
+        client = _make_client()
+        result = client.domestic.cancel(order_no=99999, stock_code="005930", quantity=10)
+        assert isinstance(result, OrderResult)
+        assert result.success is True
+
+    def test_domestic_chart(self, httpx_mock):
+        httpx_mock.add_response(
+            url="https://openapi.dbsec.co.kr:8443/api/v1/quote/kr-chart/day",
+            method="POST",
+            json={
+                "rsp_cd": "00000",
+                "Out": {},
+                "Out1": [
+                    {"TrdDd": "20260320", "Oprc": "71000", "Hprc": "72500", "Lprc": "70500", "Clpr": "72000"},
+                    {"TrdDd": "20260319", "Oprc": "70000", "Hprc": "71500", "Lprc": "69500", "Clpr": "71000"},
+                ],
+            },
+        )
+        client = _make_client()
+        result = client.domestic.chart("005930", period="day", start_date="20260319", end_date="20260320")
+        assert "Out1" in result
+        assert len(result["Out1"]) == 2
+
+    def test_domestic_order_book(self, httpx_mock):
+        httpx_mock.add_response(
+            url="https://openapi.dbsec.co.kr:8443/api/v1/quote/kr-stock/inquiry/orderbook",
+            method="POST",
+            json={"rsp_cd": "00000", "Out": {"AskPrc1": "72100", "BidPrc1": "71900"}},
+        )
+        client = _make_client()
+        result = client.domestic.order_book("005930")
+        assert isinstance(result, OrderBook)
+
+    def test_overseas_sell(self, httpx_mock):
+        httpx_mock.add_response(
+            url="https://openapi.dbsec.co.kr:8443/api/v1/trading/overseas-stock/order",
+            method="POST",
+            json={"rsp_cd": "00000", "rsp_msg": "정상처리", "Out": {"OrdNo": 66666}},
+        )
+        client = _make_client()
+        result = client.overseas.sell("AAPL", quantity=5, price=180.0)
+        assert isinstance(result, OrderResult)
+        assert result.success is True
+
+    def test_overseas_cancel(self, httpx_mock):
+        httpx_mock.add_response(
+            url="https://openapi.dbsec.co.kr:8443/api/v1/trading/overseas-stock/order",
+            method="POST",
+            json={"rsp_cd": "00000", "rsp_msg": "정상처리", "Out": {"OrdNo": 55555}},
+        )
+        client = _make_client()
+        result = client.overseas.cancel(order_no=66666, stock_code="AAPL", quantity=5)
+        assert isinstance(result, OrderResult)
+        assert result.success is True
+
+    def test_input_validation_errors(self):
+        """Sync methods should raise ValueError for invalid inputs."""
+        client = _make_client()
+        with pytest.raises(ValueError, match="stock_code must be a non-empty string"):
+            client.domestic.buy("", quantity=10, price=70000)
+        with pytest.raises(ValueError, match="quantity must be a positive integer"):
+            client.domestic.sell("005930", quantity=0, price=70000)
+        with pytest.raises(ValueError, match="price must be a non-negative number"):
+            client.overseas.buy("AAPL", quantity=10, price=-50)
+        with pytest.raises(ValueError, match="start_date must be in YYYYMMDD format"):
+            client.domestic.trading_history("bad-date", "20260320")
+        with pytest.raises(ValueError, match="Invalid period"):
+            client.domestic.chart("005930", period="yearly")

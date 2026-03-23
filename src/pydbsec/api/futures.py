@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from .._validation import validate_stock_code
 from ..constants import (
     FUTURES_BALANCE,
     FUTURES_FUTURE_TICKER,
@@ -64,6 +65,7 @@ class FuturesAPI:
             code: Instrument code (e.g., "B09ES887")
             market: "WO"=weekly option, "OF"=monthly option, "FU"=futures
         """
+        validate_stock_code(code, label="code")
         data: dict[str, Any] = {"In": {"InputCondMrktDivCode": market, "InputIscd1": code}}
         return self._http.request(FUTURES_OPTION_PRICE, data, paginate=False)
 
@@ -74,16 +76,19 @@ class FuturesAPI:
             code: Instrument code
             market: "WO"=weekly option, "OF"=monthly option, "FU"=futures
         """
+        validate_stock_code(code, label="code")
         data: dict[str, Any] = {"In": {"InputCondMrktDivCode": market, "InputIscd1": code}}
         return self._http.request(FUTURES_OPTION_ORDERBOOK, data, paginate=False)
 
     def daily_price(self, code: str, *, market: str = MARKET_OPTIONS_WEEKLY) -> dict[str, Any]:
         """Get daily price history for futures/options."""
+        validate_stock_code(code, label="code")
         data: dict[str, Any] = {"In": {"InputCondMrktDivCode": market, "InputIscd1": code}}
         return self._http.request(FUTURES_OPTION_DAILY_PRICE, data)
 
     def hour_price(self, code: str, *, market: str = MARKET_OPTIONS_WEEKLY) -> dict[str, Any]:
         """Get intraday price by time for futures/options."""
+        validate_stock_code(code, label="code")
         data: dict[str, Any] = {"In": {"InputCondMrktDivCode": market, "InputIscd1": code}}
         return self._http.request(FUTURES_OPTION_HOUR_PRICE, data)
 
@@ -123,21 +128,25 @@ class AsyncFuturesAPI:
 
     async def price(self, code: str, *, market: str = MARKET_OPTIONS_WEEKLY) -> dict[str, Any]:
         """Get futures/options current price."""
+        validate_stock_code(code, label="code")
         data: dict[str, Any] = {"In": {"InputCondMrktDivCode": market, "InputIscd1": code}}
         return await self._http.request(FUTURES_OPTION_PRICE, data, paginate=False)
 
     async def orderbook(self, code: str, *, market: str = MARKET_OPTIONS_WEEKLY) -> dict[str, Any]:
         """Get futures/options order book (호가)."""
+        validate_stock_code(code, label="code")
         data: dict[str, Any] = {"In": {"InputCondMrktDivCode": market, "InputIscd1": code}}
         return await self._http.request(FUTURES_OPTION_ORDERBOOK, data, paginate=False)
 
     async def daily_price(self, code: str, *, market: str = MARKET_OPTIONS_WEEKLY) -> dict[str, Any]:
         """Get daily price history for futures/options."""
+        validate_stock_code(code, label="code")
         data: dict[str, Any] = {"In": {"InputCondMrktDivCode": market, "InputIscd1": code}}
         return await self._http.request(FUTURES_OPTION_DAILY_PRICE, data)
 
     async def hour_price(self, code: str, *, market: str = MARKET_OPTIONS_WEEKLY) -> dict[str, Any]:
         """Get intraday price by time for futures/options."""
+        validate_stock_code(code, label="code")
         data: dict[str, Any] = {"In": {"InputCondMrktDivCode": market, "InputIscd1": code}}
         return await self._http.request(FUTURES_OPTION_HOUR_PRICE, data)
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from .._validation import validate_date, validate_price, validate_quantity, validate_stock_code
 from ..constants import (
     DOMESTIC_ABLE_ORDER_QTY,
     DOMESTIC_BALANCE,
@@ -83,6 +84,8 @@ class DomesticAPI:
 
     def cancel(self, order_no: int, stock_code: str, quantity: int) -> OrderResult:
         """Cancel an existing order."""
+        validate_stock_code(stock_code)
+        validate_quantity(quantity)
         data = {"In": {"OrgOrdNo": order_no, "IsuNo": stock_code, "OrdQty": quantity}}
         result = self._http.request(DOMESTIC_CANCEL_ORDER, data, paginate=False)
         return OrderResult.from_api(result)
@@ -112,6 +115,8 @@ class DomesticAPI:
             price: Order price
             side: "1"=sell, "2"=buy (default)
         """
+        validate_stock_code(stock_code)
+        validate_price(price)
         isu_no = f"A{stock_code}" if not stock_code.startswith("A") else stock_code
         data = {"In": {"BnsTpCode": side, "IsuNo": isu_no, "OrdPrc": price}}
         result = self._http.request(DOMESTIC_ABLE_ORDER_QTY, data)
@@ -153,6 +158,8 @@ class DomesticAPI:
             end_date: End date (YYYYMMDD)
             query_type: "0"=all, "1"=deposit/withdraw, "2"=in/out, "3"=trades, "4"=transfer
         """
+        validate_date(start_date, label="start_date")
+        validate_date(end_date, label="end_date")
         data = {"In": {"QryTp": query_type, "QrySrtDt": start_date, "QryEndDt": end_date, "SrtNo": 0, "IsuNo": ""}}
         return self._http.request(DOMESTIC_TRADING_HISTORY, data)
 
@@ -163,6 +170,7 @@ class DomesticAPI:
             date: Trade date (YYYYMMDD)
             stock_code: Specific stock code, or empty for all
         """
+        validate_date(date)
         data = {"In": {"IsuNo": stock_code, "BnsDt": date}}
         return self._http.request(DOMESTIC_DAILY_TRADE_REPORT, data)
 
@@ -175,12 +183,14 @@ class DomesticAPI:
             stock_code: Stock code (e.g., "005930")
             market: "UJ"=stock (default), "E"=ETF, "EN"=ETN
         """
+        validate_stock_code(stock_code)
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": stock_code}}
         result = self._http.request(DOMESTIC_STOCK_PRICE, data, paginate=False)
         return StockPrice.from_api(result)
 
     def order_book(self, stock_code: str, *, market: str = "UJ") -> OrderBook:
         """Get order book (호가)."""
+        validate_stock_code(stock_code)
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": stock_code}}
         result = self._http.request(DOMESTIC_ORDER_BOOK, data, paginate=False)
         return OrderBook.from_api(result)
@@ -261,6 +271,8 @@ class AsyncDomesticAPI:
         return OrderResult.from_api(result)
 
     async def cancel(self, order_no: int, stock_code: str, quantity: int) -> OrderResult:
+        validate_stock_code(stock_code)
+        validate_quantity(quantity)
         data = {"In": {"OrgOrdNo": order_no, "IsuNo": stock_code, "OrdQty": quantity}}
         result = await self._http.request(DOMESTIC_CANCEL_ORDER, data, paginate=False)
         return OrderResult.from_api(result)
@@ -275,6 +287,8 @@ class AsyncDomesticAPI:
         return result
 
     async def orderable_quantity(self, stock_code: str, price: float, *, side: str = "2") -> dict[str, Any]:
+        validate_stock_code(stock_code)
+        validate_price(price)
         isu_no = f"A{stock_code}" if not stock_code.startswith("A") else stock_code
         data = {"In": {"BnsTpCode": side, "IsuNo": isu_no, "OrdPrc": price}}
         result = await self._http.request(DOMESTIC_ABLE_ORDER_QTY, data)
@@ -296,19 +310,24 @@ class AsyncDomesticAPI:
         return await self._http.request(DOMESTIC_TRANSACTION_HISTORY, data)
 
     async def trading_history(self, start_date: str, end_date: str, *, query_type: str = "0") -> dict[str, Any]:
+        validate_date(start_date, label="start_date")
+        validate_date(end_date, label="end_date")
         data = {"In": {"QryTp": query_type, "QrySrtDt": start_date, "QryEndDt": end_date, "SrtNo": 0, "IsuNo": ""}}
         return await self._http.request(DOMESTIC_TRADING_HISTORY, data)
 
     async def daily_trade_report(self, date: str, *, stock_code: str = "") -> dict[str, Any]:
+        validate_date(date)
         data = {"In": {"IsuNo": stock_code, "BnsDt": date}}
         return await self._http.request(DOMESTIC_DAILY_TRADE_REPORT, data)
 
     async def price(self, stock_code: str, *, market: str = "UJ") -> StockPrice:
+        validate_stock_code(stock_code)
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": stock_code}}
         result = await self._http.request(DOMESTIC_STOCK_PRICE, data, paginate=False)
         return StockPrice.from_api(result)
 
     async def order_book(self, stock_code: str, *, market: str = "UJ") -> OrderBook:
+        validate_stock_code(stock_code)
         data = {"In": {"InputCondMrktDivCode": market, "InputIscd1": stock_code}}
         result = await self._http.request(DOMESTIC_ORDER_BOOK, data, paginate=False)
         return OrderBook.from_api(result)
@@ -347,6 +366,9 @@ def _build_domestic_order(
     loan_date: str,
     order_condition: str,
 ) -> dict[str, Any]:
+    validate_stock_code(stock_code)
+    validate_quantity(quantity)
+    validate_price(price)
     return {
         "In": {
             "IsuNo": stock_code,
@@ -371,6 +393,11 @@ def _build_domestic_chart(
     market: str,
     adjust_price: str,
 ) -> tuple[str, dict[str, Any]]:
+    validate_stock_code(stock_code)
+    if start_date:
+        validate_date(start_date, label="start_date")
+    if end_date:
+        validate_date(end_date, label="end_date")
     base_in: dict[str, Any] = {
         "InputCondMrktDivCode": market,
         "InputOrgAdjPrc": adjust_price,
