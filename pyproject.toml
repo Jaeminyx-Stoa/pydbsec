@@ -80,6 +80,10 @@ select = ["E", "F", "I", "UP"]
 python_version = "3.10"
 strict = true
 
+[[tool.mypy.overrides]]
+module = "pydbsec.mcp.server"
+disallow_untyped_decorators = false
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
