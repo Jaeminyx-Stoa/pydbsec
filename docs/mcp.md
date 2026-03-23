@@ -1,16 +1,46 @@
 # MCP Server (AI 어시스턴트 연동)
 
-pydbsec은 [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) 서버를 내장하고 있어, Claude Desktop, Cursor, Claude Code 등 AI 도구에서 DB증권 API를 직접 호출할 수 있습니다.
+pydbsec은 [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) 서버를 내장하고 있어, Claude Desktop, Claude Code, Cursor 등 AI 도구에서 DB증권 API를 직접 호출할 수 있습니다.
 
-## 설치
+## 사전 준비
+
+1. [DB증권 OpenAPI](https://openapi.dbsec.co.kr)에서 **App Key / App Secret** 발급
+2. Python 3.10 이상 설치
+
+## 설치 방법
+
+두 가지 방법 중 선택:
+
+### 방법 1: pip (권장)
 
 ```bash
 pip install pydbsec[mcp]
 ```
 
+설치 후 `pydbsec-mcp` 명령어가 사용 가능합니다.
+
+### 방법 2: npx (Python 환경 자동 관리)
+
+Python 환경 설정 없이 바로 사용:
+
+```bash
+npx pydbsec-mcp
+```
+
+내부적으로 uvx → pipx → auto venv 순으로 최적의 Python 런타임을 자동 탐지합니다.
+
 ## Claude Desktop 연동
 
-`~/Library/Application Support/Claude/claude_desktop_config.json`:
+### 1. 설정 파일 열기
+
+| OS | 경로 |
+|----|------|
+| macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
+
+### 2. MCP 서버 추가
+
+**pip으로 설치한 경우:**
 
 ```json
 {
@@ -26,21 +56,46 @@ pip install pydbsec[mcp]
 }
 ```
 
-Claude Desktop을 재시작하면 바로 사용 가능합니다.
+**npx를 사용하는 경우:**
 
-**사용 예시:**
+```json
+{
+  "mcpServers": {
+    "dbsec": {
+      "command": "npx",
+      "args": ["pydbsec-mcp"],
+      "env": {
+        "DBSEC_APP_KEY": "your_app_key",
+        "DBSEC_APP_SECRET": "your_app_secret"
+      }
+    }
+  }
+}
+```
 
-- "삼성전자 현재가 알려줘" → `get_stock_price("005930")`
-- "내 잔고 보여줘" → `get_balance()`
+### 3. Claude Desktop 재시작
+
+설정 저장 후 Claude Desktop을 완전히 종료 후 재시작합니다.
+
+### 4. 확인
+
+채팅창에 다음과 같이 입력해보세요:
+
+- "삼성전자 현재가 알려줘" → `get_stock_price("005930")` 자동 호출
+- "내 잔고 보여줘" → `get_balance()` 자동 호출
 - "AAPL 10주 180달러에 매수해줘" → `place_order("AAPL", "buy", 10, 180.0, overseas=True)`
 
 ## Claude Code 연동
+
+### CLI로 추가
 
 ```bash
 claude mcp add dbsec -- env DBSEC_APP_KEY=your_key DBSEC_APP_SECRET=your_secret pydbsec-mcp
 ```
 
-또는 프로젝트 `.claude/settings.json`:
+### 또는 설정 파일로 추가
+
+프로젝트 `.claude/settings.json`:
 
 ```json
 {
@@ -55,6 +110,40 @@ claude mcp add dbsec -- env DBSEC_APP_KEY=your_key DBSEC_APP_SECRET=your_secret 
   }
 }
 ```
+
+## Cursor 연동
+
+### 1. 설정 열기
+
+`Cmd+Shift+P` (macOS) / `Ctrl+Shift+P` (Windows) → **"Cursor Settings"** → **MCP** 탭
+
+### 2. 서버 추가
+
+**"Add new MCP server"** 클릭 후:
+
+- **Name**: `dbsec`
+- **Type**: `command`
+- **Command**: `env DBSEC_APP_KEY=your_key DBSEC_APP_SECRET=your_secret pydbsec-mcp`
+
+또는 프로젝트 루트에 `.cursor/mcp.json` 파일 생성:
+
+```json
+{
+  "mcpServers": {
+    "dbsec": {
+      "command": "pydbsec-mcp",
+      "env": {
+        "DBSEC_APP_KEY": "your_app_key",
+        "DBSEC_APP_SECRET": "your_app_secret"
+      }
+    }
+  }
+}
+```
+
+### 3. 확인
+
+Cursor의 Composer(Agent 모드)에서 "삼성전자 현재가 조회해줘"라고 입력하면 MCP tool이 호출됩니다.
 
 ## MCP Tools
 
@@ -123,7 +212,7 @@ messages = [{"role": "user", "content": "삼성전자 현재가 알려줘"}]
 
 while True:
     response = client.messages.create(
-        model="claude-opus-4-6",
+        model="claude-sonnet-4-6",
         max_tokens=4096,
         tools=tools,
         messages=messages,
@@ -187,24 +276,44 @@ balance = parse_balance(data, overseas=True)  # → OverseasBalance
 result = parse_order_result(data)  # → OrderResult
 ```
 
-## 디버깅
+## 트러블슈팅
 
-### MCP Inspector
+### `pydbsec-mcp` 명령어를 찾을 수 없는 경우
+
+pip으로 설치한 경로가 PATH에 포함되어 있는지 확인합니다:
 
 ```bash
-npx @modelcontextprotocol/inspector pydbsec-mcp
+# 설치 위치 확인
+pip show pydbsec | grep Location
+
+# PATH에 없다면 전체 경로로 실행
+python -m pydbsec.mcp.server
 ```
 
-### 직접 실행
+또는 npx 방식으로 전환하면 PATH 문제를 우회할 수 있습니다.
+
+### Claude Desktop에서 MCP 서버가 인식되지 않는 경우
+
+1. JSON 설정 파일의 문법이 올바른지 확인 (쉼표, 따옴표 등)
+2. Claude Desktop을 **완전히 종료** 후 재시작 (Dock에서 우클릭 → 종료)
+3. `pydbsec-mcp`이 터미널에서 직접 실행되는지 먼저 확인:
 
 ```bash
 DBSEC_APP_KEY=your_key DBSEC_APP_SECRET=your_secret pydbsec-mcp
 ```
 
-### 로그 확인
+### API 인증 오류
 
-```python
-import logging
-logging.basicConfig(level=logging.DEBUG)
-# pydbsec-mcp 실행 시 모든 API 요청/응답이 로깅됨
+- App Key / App Secret이 올바른지 확인
+- [DB증권 OpenAPI 포털](https://openapi.dbsec.co.kr)에서 서비스가 활성화 상태인지 확인
+- 환경변수에 불필요한 공백이나 따옴표가 포함되지 않았는지 확인
+
+### MCP Inspector로 디버깅
+
+MCP 서버의 동작을 직접 테스트할 수 있습니다:
+
+```bash
+npx @modelcontextprotocol/inspector pydbsec-mcp
 ```
+
+브라우저에서 Inspector UI가 열리며, 각 tool을 수동으로 호출하고 응답을 확인할 수 있습니다.
