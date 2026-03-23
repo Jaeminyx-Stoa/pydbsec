@@ -279,6 +279,23 @@ DB증권 OpenAPI 사용을 위해:
 2. [OpenAPI 사용 신청](https://openapi.dbsec.co.kr)
 3. App Key / App Secret 발급
 
+## 사용 전 유의사항
+
+### License
+
+pydbsec는 [MIT License](LICENSE)를 따릅니다. MIT License에서 규정하는 조건 안에서 자유롭게 수정/재배포/사용이 가능합니다.
+
+### 면책 조항
+
+- pydbsec의 동작에는 불완전한 부분이나 버그가 있을 수 있습니다. 또한 pydbsec의 API는 언제든 변경될 수 있습니다.
+- pydbsec의 제작자는 이 코드에 대해서 어떤 것도 보장하지 않습니다. 코드 사용 중 생긴 **어떠한 종류의 피해(버그, 사용자의 실수, 투자로 인한 손실 등)에 대해서도 책임지지 않습니다.**
+- pydbsec는 개인 투자 용도로만 개발되었습니다.
+
+### 기타
+
+- pydbsec를 사용하기 위해서는 Python 3.10 버전 이상이 필요합니다.
+- pydbsec는 아직 개발 단계입니다. 버그나 기능 요청 등의 피드백은 [Issues](https://github.com/Jaeminyx-Stoa/pydbsec/issues)나 [Pull Request](https://github.com/Jaeminyx-Stoa/pydbsec/pulls)를 통해 부탁드립니다.
+
 ## Documentation
 
 [https://jaeminyx-stoa.github.io/pydbsec](https://jaeminyx-stoa.github.io/pydbsec)
