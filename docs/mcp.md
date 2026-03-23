@@ -90,8 +90,14 @@ npx pydbsec-mcp
 ### CLI로 추가
 
 ```bash
-claude mcp add dbsec -- env DBSEC_APP_KEY=your_key DBSEC_APP_SECRET=your_secret pydbsec-mcp
+claude mcp add \
+  --env DBSEC_APP_KEY=your_key \
+  --env DBSEC_APP_SECRET=your_secret \
+  dbsec \
+  -- pydbsec-mcp
 ```
+
+`--env`를 반복해서 여러 환경변수를 전달합니다. 옵션은 서버 이름(`dbsec`) 앞에, 실행 명령(`pydbsec-mcp`)은 `--` 뒤에 위치해야 합니다.
 
 ### 또는 설정 파일로 추가
 

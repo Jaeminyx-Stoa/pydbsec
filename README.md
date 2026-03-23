@@ -179,7 +179,11 @@ pip install pydbsec[mcp]
 **Claude Code**:
 
 ```bash
-claude mcp add dbsec -- env DBSEC_APP_KEY=your_key DBSEC_APP_SECRET=your_secret pydbsec-mcp
+claude mcp add \
+  --env DBSEC_APP_KEY=your_key \
+  --env DBSEC_APP_SECRET=your_secret \
+  dbsec \
+  -- pydbsec-mcp
 ```
 
 AI에게 "삼성전자 현재가 알려줘" → `get_stock_price("005930")` 자동 호출.
