@@ -69,7 +69,51 @@ pydbsec은 API 응답을 Pydantic v2 모델로 변환합니다. 모든 모델은
 
 ## OrderBook
 
-현재는 `raw` 딕셔너리로 원본 응답을 제공합니다.
+| Field | Type | Description |
+|-------|------|-------------|
+| `asks` | `list[OrderBookLevel]` | 매도 호가 (최우선 매도가부터) |
+| `bids` | `list[OrderBookLevel]` | 매수 호가 (최우선 매수가부터) |
+| `total_ask_volume` | `int` | 총 매도 잔량 |
+| `total_bid_volume` | `int` | 총 매수 잔량 |
+
+### OrderBookLevel
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `price` | `float` | 호가 |
+| `volume` | `int` | 잔량 |
+
+```python
+ob = client.domestic.order_book("005930")
+print(f"매도1호가: {ob.asks[0].price:,.0f}원 ({ob.asks[0].volume:,}주)")
+print(f"매수1호가: {ob.bids[0].price:,.0f}원 ({ob.bids[0].volume:,}주)")
+```
+
+## ChartData
+
+`chart()` 메서드의 반환 타입입니다.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `candles` | `list[ChartCandle]` | OHLCV 캔들 리스트 |
+
+### ChartCandle
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `date` | `str` | 거래일 (YYYYMMDD) |
+| `time` | `str` | 거래시간 (분봉 전용) |
+| `open` | `float` | 시가 |
+| `high` | `float` | 고가 |
+| `low` | `float` | 저가 |
+| `close` | `float` | 종가 |
+| `volume` | `int` | 거래량 |
+
+```python
+chart = client.domestic.chart("005930", period="day", start_date="20260301", end_date="20260320")
+for c in chart.candles:
+    print(f"{c.date}: {c.close:,.0f}원 (vol: {c.volume:,})")
+```
 
 ## Raw 데이터 접근
 

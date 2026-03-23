@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-03-23
+
+### Added
+
+- **ChartData model** — `ChartCandle`, `ChartData` Pydantic 모델로 OHLCV 캔들 데이터 타입 안전 접근
+- **Enhanced OrderBook** — `OrderBookLevel`로 10단계 호가 구조화 (`asks`, `bids`)
+- **5 new exceptions** — `RateLimitError`, `InvalidOrderError`, `InsufficientBalanceError`, `WebSocketError`, `ValidationError`
+- **WebSocket heartbeat** — ping/pong으로 연결 상태 확인 (`heartbeat_interval` 파라미터)
+- **Exponential backoff + jitter** — WebSocket 재연결 시 서버 부하 분산
+- **8 new examples** — 실시간 모니터링, 손절매, 차트 분석, 주문 관리 등
+
+### Changed
+
+- `chart()` 리턴 타입: `dict` → `ChartData` (`.raw`로 원본 접근 가능)
+- `OrderBook.from_api()` — 구조화된 호가 파싱 (`.raw` 호환 유지)
+- `ValidationError` — `PyDBSecError` + `ValueError` 다중 상속
+- Development Status: Alpha → Production/Stable
+
+[1.0.0]: https://github.com/Jaeminyx-Stoa/pydbsec/compare/v0.5.2...v1.0.0
+
+## [0.5.2] - 2026-03-23
+
+### Added
+
+- Input validation, async tests, sell/cancel/chart/order_book tests
+
+[0.5.2]: https://github.com/Jaeminyx-Stoa/pydbsec/compare/v0.5.1...v0.5.2
+
 ## [0.5.1] - 2026-03-21
 
 ### Changed

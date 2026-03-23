@@ -110,4 +110,10 @@ print(price.volume)         # 거래량
 | `end_date` | `str` | `""` | YYYYMMDD |
 | `time_interval` | `str` | `"60"` | 분봉 간격 (60=1분, 300=5분) |
 
-**Returns:** `dict | list[dict]`
+**Returns:** [`ChartData`](models.md#chartdata)
+
+```python
+chart = client.domestic.chart("005930", period="day", start_date="20260301", end_date="20260320")
+for c in chart.candles:
+    print(f"{c.date}: {c.close:,.0f}원")
+```

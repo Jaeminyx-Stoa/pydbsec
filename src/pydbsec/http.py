@@ -274,6 +274,10 @@ def _classify_error(
         return InvalidOrderError(msg, **kwargs)
     if rsp_cd and rsp_cd in BALANCE_ERROR_CODES:
         return InsufficientBalanceError(msg, **kwargs)
+    if rsp_cd:
+        logger.info(
+            "Unclassified rsp_cd=%s on %s (HTTP %d)", rsp_cd, endpoint, status_code,
+        )
     return APIError(msg, **kwargs)
 
 

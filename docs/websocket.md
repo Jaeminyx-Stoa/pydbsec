@@ -53,8 +53,12 @@ ws = DBSecWebSocket(
     reconnect=True,                 # 자동 재연결 (기본값)
     reconnect_delay=3.0,            # 재연결 대기 시간
     max_reconnect_attempts=10,      # 최대 재연결 시도
+    heartbeat_interval=30.0,        # Heartbeat ping 주기 (초)
 )
 ```
+
+!!! info "Heartbeat"
+    v1.0부터 주기적으로 ping 프레임을 전송하여 연결 상태를 확인합니다. 연결이 끊어지면 지수 백오프 + 랜덤 jitter로 자동 재연결합니다.
 
 ## 구독 관리
 

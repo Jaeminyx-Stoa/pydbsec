@@ -87,3 +87,5 @@ print(f"${aapl.current_price:.2f} ({aapl.change_rate:+.2f}%)")
 ### `chart(stock_code, period="day", **kwargs)`
 
 차트 데이터. 파라미터는 Domestic `chart()`와 동일 (market 기본값만 `"FY"`).
+
+**Returns:** [`ChartData`](models.md#chartdata)

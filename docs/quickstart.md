@@ -57,6 +57,18 @@ client = PyDBSec(app_key="YOUR_APP_KEY", app_secret="YOUR_APP_SECRET")
         start_date="20240101",
         end_date="20240131",
     )
+    for candle in chart.candles:
+        print(f"{candle.date}: O={candle.open:,.0f} H={candle.high:,.0f} L={candle.low:,.0f} C={candle.close:,.0f}")
+    ```
+
+=== "호가"
+
+    ```python
+    ob = client.domestic.order_book("005930")
+    for ask in ob.asks:
+        print(f"  매도: {ask.price:,.0f}원 ({ask.volume:,}주)")
+    for bid in ob.bids:
+        print(f"  매수: {bid.price:,.0f}원 ({bid.volume:,}주)")
     ```
 
 ### 해외 주식
@@ -123,16 +135,37 @@ client = PyDBSec(
 ## 에러 처리
 
 ```python
-from pydbsec import PyDBSec, TokenError, APIError
+from pydbsec import (
+    PyDBSec, TokenError, APIError,
+    RateLimitError, InvalidOrderError, InsufficientBalanceError,
+    ValidationError, WebSocketError,
+)
 
 try:
-    client = PyDBSec(app_key="invalid", app_secret="invalid")
-    balance = client.domestic.balance()
+    client = PyDBSec(app_key="...", app_secret="...")
+    client.domestic.buy("005930", quantity=10, price=70000)
+except RateLimitError as e:
+    print(f"요청 제한: {e} (retry_after={e.retry_after})")
+except InsufficientBalanceError as e:
+    print(f"잔고 부족: {e}")
+except InvalidOrderError as e:
+    print(f"주문 오류: {e} (rsp_cd={e.rsp_cd})")
 except TokenError as e:
     print(f"인증 실패: {e} (status: {e.status_code})")
+except ValidationError as e:
+    print(f"입력값 오류: {e}")  # ValueError로도 잡힘
 except APIError as e:
     print(f"API 오류: {e} (code: {e.rsp_cd})")
 ```
+
+!!! tip "예외 계층"
+    ```
+    PyDBSecError
+    ├── TokenError → TokenExpiredError
+    ├── APIError → RateLimitError, InvalidOrderError, InsufficientBalanceError
+    ├── WebSocketError
+    └── ValidationError (also ValueError)
+    ```
 
 ## Market Codes
 
