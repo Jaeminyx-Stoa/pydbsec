@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .ws import DBSecWebSocket
@@ -15,6 +15,7 @@ from .api.overseas import AsyncOverseasAPI, OverseasAPI
 from .auth import TokenManager
 from .constants import BASE_URL
 from .http import AsyncHTTPClient, HTTPClient
+from .models.portfolio import PortfolioPosition, PortfolioSummary
 from .ratelimit import RateLimiter
 
 
@@ -116,57 +117,61 @@ class PyDBSec:
             self._ws = DBSecWebSocket(self._token_manager, ws_url=WS_URL)
         return self._ws
 
-    def portfolio_summary(self, *, include_overseas: bool = True) -> dict[str, Any]:
+    def portfolio_summary(self, *, include_overseas: bool = True) -> PortfolioSummary:
         """Get a unified portfolio summary across domestic and overseas.
-
-        Returns a normalized dict with total NAV, cash, profit, and positions.
 
         Args:
             include_overseas: Include overseas balance (default: True)
         """
         kr_balance = self.domestic.balance()
 
-        result: dict[str, Any] = {
-            "total_nav": kr_balance.deposit_total,
-            "cash": kr_balance.available_cash,
-            "profit": kr_balance.pnl_amount,
-            "ror": kr_balance.pnl_rate,
-            "positions": [
-                {
-                    "region": "KR",
-                    "stock_code": p.stock_code,
-                    "stock_name": p.stock_name,
-                    "quantity": p.quantity,
-                    "current_price": p.current_price,
-                    "eval_amount": p.eval_amount,
-                    "pnl_amount": p.pnl_amount,
-                    "pnl_rate": p.pnl_rate,
-                }
-                for p in kr_balance.positions
-            ],
-        }
+        total_nav = kr_balance.deposit_total
+        cash = kr_balance.available_cash
+        profit = kr_balance.pnl_amount
+        ror = kr_balance.pnl_rate
+        overseas_nav = 0.0
+        positions = [
+            PortfolioPosition(
+                region="KR",
+                stock_code=p.stock_code,
+                stock_name=p.stock_name,
+                quantity=p.quantity,
+                current_price=p.current_price,
+                eval_amount=p.eval_amount,
+                pnl_amount=p.pnl_amount,
+                pnl_rate=p.pnl_rate,
+            )
+            for p in kr_balance.positions
+        ]
 
         if include_overseas:
             us_balance = self.overseas.balance()
-            result["total_nav"] += us_balance.eval_total
-            result["cash"] += us_balance.available_cash
-            result["profit"] += us_balance.pnl_amount
-            result["overseas_nav"] = us_balance.eval_total
-            result["positions"] += [
-                {
-                    "region": "US",
-                    "stock_code": p.stock_code,
-                    "stock_name": p.stock_name,
-                    "quantity": p.quantity,
-                    "current_price": p.current_price,
-                    "eval_amount": p.eval_amount,
-                    "pnl_amount": p.pnl_amount,
-                    "pnl_rate": p.pnl_rate,
-                }
+            total_nav += us_balance.eval_total
+            cash += us_balance.available_cash
+            profit += us_balance.pnl_amount
+            overseas_nav = us_balance.eval_total
+            positions += [
+                PortfolioPosition(
+                    region="US",
+                    stock_code=p.stock_code,
+                    stock_name=p.stock_name,
+                    quantity=p.quantity,
+                    current_price=p.current_price,
+                    eval_amount=p.eval_amount,
+                    pnl_amount=p.pnl_amount,
+                    pnl_rate=p.pnl_rate,
+                )
                 for p in us_balance.positions
             ]
 
-        return result
+        return PortfolioSummary(
+            total_nav=total_nav,
+            cash=cash,
+            profit=profit,
+            ror=ror,
+            overseas_nav=overseas_nav,
+            positions=positions,
+        )
 
     def close(self) -> None:
         """Revoke the access token and close the connection pool."""
@@ -248,51 +253,57 @@ class AsyncPyDBSec:
             self._ws = DBSecWebSocket(self._token_manager, ws_url=WS_URL)
         return self._ws
 
-    async def portfolio_summary(self, *, include_overseas: bool = True) -> dict[str, Any]:
+    async def portfolio_summary(self, *, include_overseas: bool = True) -> PortfolioSummary:
         """Get a unified portfolio summary across domestic and overseas."""
         kr_balance = await self.domestic.balance()
 
-        result: dict[str, Any] = {
-            "total_nav": kr_balance.deposit_total,
-            "cash": kr_balance.available_cash,
-            "profit": kr_balance.pnl_amount,
-            "ror": kr_balance.pnl_rate,
-            "positions": [
-                {
-                    "region": "KR",
-                    "stock_code": p.stock_code,
-                    "stock_name": p.stock_name,
-                    "quantity": p.quantity,
-                    "current_price": p.current_price,
-                    "eval_amount": p.eval_amount,
-                    "pnl_amount": p.pnl_amount,
-                    "pnl_rate": p.pnl_rate,
-                }
-                for p in kr_balance.positions
-            ],
-        }
+        total_nav = kr_balance.deposit_total
+        cash = kr_balance.available_cash
+        profit = kr_balance.pnl_amount
+        ror = kr_balance.pnl_rate
+        overseas_nav = 0.0
+        positions = [
+            PortfolioPosition(
+                region="KR",
+                stock_code=p.stock_code,
+                stock_name=p.stock_name,
+                quantity=p.quantity,
+                current_price=p.current_price,
+                eval_amount=p.eval_amount,
+                pnl_amount=p.pnl_amount,
+                pnl_rate=p.pnl_rate,
+            )
+            for p in kr_balance.positions
+        ]
 
         if include_overseas:
             us_balance = await self.overseas.balance()
-            result["total_nav"] += us_balance.eval_total
-            result["cash"] += us_balance.available_cash
-            result["profit"] += us_balance.pnl_amount
-            result["overseas_nav"] = us_balance.eval_total
-            result["positions"] += [
-                {
-                    "region": "US",
-                    "stock_code": p.stock_code,
-                    "stock_name": p.stock_name,
-                    "quantity": p.quantity,
-                    "current_price": p.current_price,
-                    "eval_amount": p.eval_amount,
-                    "pnl_amount": p.pnl_amount,
-                    "pnl_rate": p.pnl_rate,
-                }
+            total_nav += us_balance.eval_total
+            cash += us_balance.available_cash
+            profit += us_balance.pnl_amount
+            overseas_nav = us_balance.eval_total
+            positions += [
+                PortfolioPosition(
+                    region="US",
+                    stock_code=p.stock_code,
+                    stock_name=p.stock_name,
+                    quantity=p.quantity,
+                    current_price=p.current_price,
+                    eval_amount=p.eval_amount,
+                    pnl_amount=p.pnl_amount,
+                    pnl_rate=p.pnl_rate,
+                )
                 for p in us_balance.positions
             ]
 
-        return result
+        return PortfolioSummary(
+            total_nav=total_nav,
+            cash=cash,
+            profit=profit,
+            ror=ror,
+            overseas_nav=overseas_nav,
+            positions=positions,
+        )
 
     async def aclose(self) -> None:
         """Close the async connection pool and revoke token."""

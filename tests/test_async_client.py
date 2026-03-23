@@ -186,8 +186,8 @@ class TestAsyncPyDBSec:
         )
         client = _make_async_client()
         summary = await client.portfolio_summary()
-        assert summary["total_nav"] == 10000000 + 15000
-        assert summary["overseas_nav"] == 15000
+        assert summary.total_nav == 10000000 + 15000
+        assert summary.overseas_nav == 15000
 
     async def test_input_validation_async(self):
         """Async methods should raise ValueError for invalid inputs."""

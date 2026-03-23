@@ -62,20 +62,10 @@ class TestDBSecWebSocket:
         ws = DBSecWebSocket(tm)
         assert ws._heartbeat_interval == 30.0
 
-    def test_default_queue_maxsize(self):
-        tm = _make_token_manager()
-        ws = DBSecWebSocket(tm)
-        assert ws._recv_queue.maxsize == 10000
-
     def test_custom_heartbeat_interval(self):
         tm = _make_token_manager()
         ws = DBSecWebSocket(tm, heartbeat_interval=10.0)
         assert ws._heartbeat_interval == 10.0
-
-    def test_custom_queue_maxsize(self):
-        tm = _make_token_manager()
-        ws = DBSecWebSocket(tm, queue_maxsize=500)
-        assert ws._recv_queue.maxsize == 500
 
     def test_subscribe_before_connect(self):
         """subscribe() before connect() should queue the subscription."""

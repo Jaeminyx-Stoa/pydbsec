@@ -3,6 +3,7 @@
 from datetime import datetime, timedelta
 
 from pydbsec import PyDBSec
+from pydbsec.models.portfolio import PortfolioSummary
 
 
 def _make_client() -> PyDBSec:
@@ -46,13 +47,14 @@ class TestPortfolioSummary:
         client = _make_client()
         summary = client.portfolio_summary(include_overseas=False)
 
-        assert summary["total_nav"] == 10000000
-        assert summary["cash"] == 3000000
-        assert summary["profit"] == 500000
-        assert summary["ror"] == 5.0
-        assert len(summary["positions"]) == 1
-        assert summary["positions"][0]["region"] == "KR"
-        assert summary["positions"][0]["stock_name"] == "삼성전자"
+        assert isinstance(summary, PortfolioSummary)
+        assert summary.total_nav == 10000000
+        assert summary.cash == 3000000
+        assert summary.profit == 500000
+        assert summary.ror == 5.0
+        assert len(summary.positions) == 1
+        assert summary.positions[0].region == "KR"
+        assert summary.positions[0].stock_name == "삼성전자"
 
     def test_with_overseas(self, httpx_mock):
         # Domestic
@@ -101,10 +103,10 @@ class TestPortfolioSummary:
         client = _make_client()
         summary = client.portfolio_summary()
 
-        assert summary["total_nav"] == 10000000 + 3000  # KR + US eval
-        assert summary["cash"] == 3000000 + 2000
-        assert summary["profit"] == 500000 + 300
-        assert summary["overseas_nav"] == 3000
-        assert len(summary["positions"]) == 1  # 1 US position (0 KR)
-        assert summary["positions"][0]["region"] == "US"
-        assert summary["positions"][0]["stock_code"] == "AAPL"
+        assert summary.total_nav == 10000000 + 3000  # KR + US eval
+        assert summary.cash == 3000000 + 2000
+        assert summary.profit == 500000 + 300
+        assert summary.overseas_nav == 3000
+        assert len(summary.positions) == 1  # 1 US position (0 KR)
+        assert summary.positions[0].region == "US"
+        assert summary.positions[0].stock_code == "AAPL"

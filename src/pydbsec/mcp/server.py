@@ -152,7 +152,7 @@ def get_portfolio_summary(include_overseas: bool = True) -> str:
     client = _get_client()
     try:
         summary = client.portfolio_summary(include_overseas=include_overseas)
-        return json.dumps(summary, ensure_ascii=False, default=str)
+        return json.dumps(summary.model_dump(), ensure_ascii=False, default=str)
     finally:
         client._http.close()
 

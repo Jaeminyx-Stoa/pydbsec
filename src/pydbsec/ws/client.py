@@ -42,7 +42,6 @@ class DBSecWebSocket:
         reconnect_delay: float = 3.0,
         max_reconnect_attempts: int = 10,
         heartbeat_interval: float = 30.0,
-        queue_maxsize: int = 10000,
     ):
         self._token_manager = token_manager
         self._ws_url = ws_url
@@ -54,7 +53,6 @@ class DBSecWebSocket:
         self._ws: Any = None  # websockets.WebSocketClientProtocol
         self._subscriptions: set[tuple[str, str]] = set()  # (stock_code, tr_code)
         self._connected = False
-        self._recv_queue: asyncio.Queue[WSMessage] = asyncio.Queue(maxsize=queue_maxsize)
         self._heartbeat_task: asyncio.Task[None] | None = None
 
     @property

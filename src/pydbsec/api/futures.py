@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import Any
 
 from .._validation import validate_stock_code
@@ -20,6 +21,7 @@ from ..constants import (
 )
 from ..http import AsyncHTTPClient, HTTPClient
 from ..models.balance import FuturesBalance
+from ..models.quote import OrderBook, StockPrice
 
 
 class FuturesAPI:
@@ -58,7 +60,7 @@ class FuturesAPI:
 
     # ── Quote: Prices ──
 
-    def price(self, code: str, *, market: str = MARKET_OPTIONS_WEEKLY) -> dict[str, Any]:
+    def price(self, code: str, *, market: str = MARKET_OPTIONS_WEEKLY) -> StockPrice:
         """Get futures/options current price.
 
         Args:
@@ -67,9 +69,10 @@ class FuturesAPI:
         """
         validate_stock_code(code, label="code")
         data: dict[str, Any] = {"In": {"InputCondMrktDivCode": market, "InputIscd1": code}}
-        return self._http.request(FUTURES_OPTION_PRICE, data, paginate=False)
+        result = self._http.request(FUTURES_OPTION_PRICE, data, paginate=False)
+        return StockPrice.from_api(result)
 
-    def orderbook(self, code: str, *, market: str = MARKET_OPTIONS_WEEKLY) -> dict[str, Any]:
+    def order_book(self, code: str, *, market: str = MARKET_OPTIONS_WEEKLY) -> OrderBook:
         """Get futures/options order book (호가).
 
         Args:
@@ -78,7 +81,13 @@ class FuturesAPI:
         """
         validate_stock_code(code, label="code")
         data: dict[str, Any] = {"In": {"InputCondMrktDivCode": market, "InputIscd1": code}}
-        return self._http.request(FUTURES_OPTION_ORDERBOOK, data, paginate=False)
+        result = self._http.request(FUTURES_OPTION_ORDERBOOK, data, paginate=False)
+        return OrderBook.from_api(result)
+
+    def orderbook(self, code: str, *, market: str = MARKET_OPTIONS_WEEKLY) -> OrderBook:
+        """Deprecated: use order_book() instead."""
+        warnings.warn("orderbook() is deprecated, use order_book()", DeprecationWarning, stacklevel=2)
+        return self.order_book(code, market=market)
 
     def daily_price(self, code: str, *, market: str = MARKET_OPTIONS_WEEKLY) -> dict[str, Any]:
         """Get daily price history for futures/options."""
@@ -126,17 +135,24 @@ class AsyncFuturesAPI:
 
     # ── Quote: Prices ──
 
-    async def price(self, code: str, *, market: str = MARKET_OPTIONS_WEEKLY) -> dict[str, Any]:
+    async def price(self, code: str, *, market: str = MARKET_OPTIONS_WEEKLY) -> StockPrice:
         """Get futures/options current price."""
         validate_stock_code(code, label="code")
         data: dict[str, Any] = {"In": {"InputCondMrktDivCode": market, "InputIscd1": code}}
-        return await self._http.request(FUTURES_OPTION_PRICE, data, paginate=False)
+        result = await self._http.request(FUTURES_OPTION_PRICE, data, paginate=False)
+        return StockPrice.from_api(result)
 
-    async def orderbook(self, code: str, *, market: str = MARKET_OPTIONS_WEEKLY) -> dict[str, Any]:
+    async def order_book(self, code: str, *, market: str = MARKET_OPTIONS_WEEKLY) -> OrderBook:
         """Get futures/options order book (호가)."""
         validate_stock_code(code, label="code")
         data: dict[str, Any] = {"In": {"InputCondMrktDivCode": market, "InputIscd1": code}}
-        return await self._http.request(FUTURES_OPTION_ORDERBOOK, data, paginate=False)
+        result = await self._http.request(FUTURES_OPTION_ORDERBOOK, data, paginate=False)
+        return OrderBook.from_api(result)
+
+    async def orderbook(self, code: str, *, market: str = MARKET_OPTIONS_WEEKLY) -> OrderBook:
+        """Deprecated: use order_book() instead."""
+        warnings.warn("orderbook() is deprecated, use order_book()", DeprecationWarning, stacklevel=2)
+        return await self.order_book(code, market=market)
 
     async def daily_price(self, code: str, *, market: str = MARKET_OPTIONS_WEEKLY) -> dict[str, Any]:
         """Get daily price history for futures/options."""
